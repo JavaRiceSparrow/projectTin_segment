@@ -15,8 +15,7 @@ import numpy as np
 # print(b.dtype == 'float64')
 # print(c.dtype)
 
-a = [3,4,5]
-b = tuple(a)
-print(a)
-print(b)
-print(a==b)
+array1 = np.array([[1,1,1,2,3,3,3,3],[1,2,2,2,2,3,3,3],[2,2,2,2,2,4,4,3],\
+    [2,2,2,2,2,2,4,3],[2,2,5,5,5,5,5,5],[6,2,5,5,7,7,7,7]])
+
+print(array1)

@@ -3,8 +3,9 @@ import os, sys
 # from array import array
 
 import imglib
-import nodelib
 import color
+from segment import *
+import nodelib
 
 path_name = ""
 
@@ -21,88 +22,22 @@ array0 = imglib.getImg(path_name, to_3d=True)
 # print(array1.shape)
 array1 = imglib.img3dTo2d(array0)
 
+seg_array = getSegment(array1, threshold=10)
 
-threshold = 25
-diff_down = np.abs(array1[0:-1] - array1[1:]) 
-diff_right = np.abs(array1[:,0:-1] - array1[:,1:])
-# print(np.mean(diff_down))
-# print(np.mean(diff_right))
-
-
-shape = (array1.shape)
-# crs_arr = array('i')
-# crs_arr.append(0)
-# # crs_idx = 1
-
-seg_idx = 1
-
-size_x, size_y = shape
-
-seg_array = np.zeros(shape)
-
-# seg_array[0,0] = len(crs_arr)
-# crs_arr.append(seg_idx)
-# # crs_idx += 1
-# seg_idx += 1
-# import queue
-for x in range(size_x):
-    for y in range(size_y):
-        if seg_array[x,y] == 0:
-            # q = queue.Queue(1000)
-            visited = np.zeros(shape, dtype=bool)
-            path = []
-            visited[x,y] = True
-            path.append((x,y))
-            while len(path) != 0:
-                nx,ny = path.pop()
-                path.append((nx,ny))
-                isEndnode = True
-                near_node = nodelib.getNearNode(nx,ny,size_x, size_y)
-                for pos in near_node:
-                    px,py = pos
-                    # a unvisited node
-                    if seg_array[px,py] == 0 and not visited[px,py]:
-
-                        # it's connected
-                        if nx==px:
-                            if diff_right[px,min(ny,py)] < threshold:
-                                visited[px,py] = True
-                                isEndnode = False
-                                path.append((px,py))
-                        elif ny == py:
-                            if diff_down[min(nx,px), py] < threshold:
-                                visited[px,py] = True
-                                isEndnode = False
-                                path.append((px,py))
-                        else :
-                            sys.exit(333)
-
-                # color and abandan it if it doesn't have branch
-                if isEndnode:
-                    seg_array[nx,ny] = seg_idx
-                    path.pop()
-
-            # change color index
-            seg_idx += 1
 
 # print(np.mean(seg_array))
 # array1[edge] = [255,255,255]
+size_x, size_y = array1.shape
 segment = np.zeros(array0.shape)
 for x in range(size_x):
     for y in range(size_y):
         segment[x,y] = np.array(color.getHue(seg_array[x,y]*10))
 
 compare = imglib.mergeArray((array0, segment),axis=1, interval=20)
-imglib.saveImg(compare, "output/1.gif")
+imglib.saveImg(compare, "output/3.gif")
 
 
-
-
-edge = nodelib.getEdge(array1)               
-
-
-
-
+# edge = nodelib.getEdge(array1)               
 
 # x = 1
 # for y in range(size_y-1):
