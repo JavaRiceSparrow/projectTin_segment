@@ -17,12 +17,42 @@ from PIL import Image
 #       X
 
 def arrToImg(data):
-    if np.max(data) == 1:
-        data = 255*data
-    data = np.expand_dims(data, axis = 2)
-    data = np.concatenate([data, data, data], axis=2).astype('uint8')
-    return data
+    if data.dtype == 'float64' and np.max(data) == 1:
+        ndata = np.around(255*data)
+    else:
+        ndata = data.copy()
+    ndata = np.expand_dims(ndata, axis = 2)
+    ndata = np.concatenate([ndata, ndata, ndata], axis=2).astype('uint8')
+    return ndata
 
+def img3dTo2d(data):
+    if len(data.shape) != 3:
+        return 0
+    return (data[:,:,0] + data[:,:,1]+data[:,:,0])/3
+    # .astype('uint8')
+
+def mergeArray(datas, axis=1, interval = 0):
+    '''
+    '''
+    data1 = datas[0]
+    # print(data1.shape)
+    # if len(data1.shape) !=3:
+    #     return 0
+
+    tdatas = tuple(datas)
+    if interval != 0:
+        list1 = []
+        if axis == 0:
+            itv = np.zeros((interval,data1.shape[1],3))
+        elif axis == 1:
+            itv = np.zeros((data1.shape[0],interval,3))
+        for data in tdatas:
+            list1.append(data)
+            list1.append(itv)
+        list1.pop()
+        tdatas = tuple(list1)
+
+    return np.concatenate((tdatas), axis = axis)
 
 def getBiImg(path):
     data = getImg(path, Blight = True)
@@ -31,7 +61,7 @@ def getBiImg(path):
     # return data
 
 
-def getImg(path, Blight = False, Black = False):
+def getImg(path, Blight = False, Black = False, to_3d = False):
     try:  
         img  = Image.open(path)  
     except IOError: 
@@ -39,6 +69,13 @@ def getImg(path, Blight = False, Black = False):
         return 0
 
     rawData = np.array(img)
+    if to_3d:
+        if len(rawData.shape) == 3:
+            return rawData
+        elif len(rawData.shape) == 2:
+            return arrToImg(rawData)
+        else:
+            return 0
     if Black:
         if len(rawData.shape) == 3:
             return np.around((rawData[:,:,0] + rawData[:,:,1]+rawData[:,:,0])/3)
