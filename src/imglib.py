@@ -71,6 +71,8 @@ def getImg(path, Blight = False, Black = False, to_3d = False):
     rawData = np.array(img)
     if to_3d:
         if len(rawData.shape) == 3:
+            if rawData.shape[2] == 4:
+                return rawData[:,:,:-1]
             return rawData
         elif len(rawData.shape) == 2:
             return arrToImg(rawData)

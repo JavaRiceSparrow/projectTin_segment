@@ -30,26 +30,28 @@ def  getNearNode(x,y,size_x, size_y):
     return nodes
 
 
-# def getFrame(img,neg = False):
-#     if not neg:
-#         img_f = img
-#     else:
-#         img_f = np.logical_not(img)
-#     l = np.empty_like(img_f)
-#     r = np.empty_like(img_f)
-#     u = np.empty_like(img_f)
-#     d = np.empty_like(img_f)
-#     l[:,:-1] = img_f[:,1:]
-#     l[:,-1] = img_f[:,-1]
-#     d[:-1] = img_f[1:]
-#     d[-1] = img_f[-1]
-#     r[:,1:] = img_f[:,:-1]
-#     r[:,0] = img_f[:,0]
-#     u[1:] = img_f[:-1]
-#     u[0] = img_f[0]
-#     out = np.logical_or(np.logical_or(l,r),np.logical_or(u,d))
 
-#     return np.logical_and (np.logical_not(img_f), out)
+
+def getFrame(img,neg = False):
+    if not neg:
+        img_f = img
+    else:
+        img_f = np.logical_not(img)
+    l = np.empty_like(img_f)
+    r = np.empty_like(img_f)
+    u = np.empty_like(img_f)
+    d = np.empty_like(img_f)
+    l[:,:-1] = img_f[:,1:]
+    l[:,-1] = img_f[:,-1]
+    d[:-1] = img_f[1:]
+    d[-1] = img_f[-1]
+    r[:,1:] = img_f[:,:-1]
+    r[:,0] = img_f[:,0]
+    u[1:] = img_f[:-1]
+    u[0] = img_f[0]
+    out = np.logical_or(np.logical_or(l,r),np.logical_or(u,d))
+
+    return np.logical_and (np.logical_not(img_f), out)
 
 def getEdge(data):
     data_f = data
