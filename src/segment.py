@@ -1,5 +1,5 @@
 import numpy as np
-import nodelib
+from util import nodelib, imglib
 
 DEBUG = False
 # DEBUG = True
@@ -30,13 +30,15 @@ class region():
     
 def getSegment(data, threshold = 25, delta = 4):
 
+    array1 = imglib.img3dTo2d(data)
+
     if DEBUG:
         area = 0
-    diff_down = np.abs(data[0:-1] - data[1:]) 
-    diff_right = np.abs(data[:,0:-1] - data[:,1:])
+    diff_down = np.abs(array1[0:-1] - array1[1:]) 
+    diff_right = np.abs(array1[:,0:-1] - array1[:,1:])
     # print (diff_down)
 
-    shape = (data.shape)
+    shape = (array1.shape)
     size_x, size_y = shape
 
     seg_idx = 1
@@ -162,6 +164,70 @@ def getSegment(data, threshold = 25, delta = 4):
     #     ridx += 1
 
     return seg_array
+
+
+def getEdge(data):
+    if len(data.shape) == 2:
+        print("Wrong!")
+        return None
+
+    glist = []
+    filter = [-1/6, -2/6, -3/6, 0, 3/6, 2/6, 1/6]
+    
+    for i in range(3):
+        glist.append(matrixConvolution(data[:,:,i], filter, axis_along=0))
+        glist.append(matrixConvolution(data[:,:,i], filter, axis_along=1))
+
+    gsquare = np.square(glist.pop())
+    while glist:
+        gsquare = gsquare + np.square(glist.pop())
+
+    return np.sqrt(gsquare)
+
+
+
+def matrixConvolution(data, filter, axis_along = 0):
+    if type(data) != np.ndarray:
+        # print(type(data))
+        print("Data type wrong!")
+        return None
+    if len(data.shape) != 2:
+        print("Data size wrong!")
+        # print(data.shape)
+        return None
+    filter = np.array(filter)
+    # if type(filter) != np.ndarray:
+    #     return None
+    if len(filter.shape) != 1:
+        # print("Data size wrong!")
+        return None
+    fsize = int(filter.shape[0])
+    cdata = np.zeros((fsize,data.shape[0],data.shape[1]))
+    mid = int((fsize-1)/2)
+    if axis_along == 0:
+        for i in range(mid):
+            cdata[i,mid-i:] = data[:i-mid]
+
+        cdata[mid] = data
+        for i in range(mid):
+            # i = i-mid
+            cdata[-i-1][:i-mid] = data[mid-i:] 
+    else :
+        for i in range(mid):
+            cdata[i,:,mid-i:] = data[:,:i-mid] 
+
+        cdata[mid] = data
+        for i in range(mid):
+            # i = i-mid
+            cdata[-i-1,:,:i-mid] = data[:,mid-i:] 
+    
+    for i in range(fsize):
+        cdata[i] = cdata[i] * filter[i]
+    
+    return np.sum(cdata, axis = 0)
+
+
+    
 
 
 # def deleteSmallSeg(data, delta = 4):

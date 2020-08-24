@@ -31,7 +31,6 @@ def  getNearNode(x,y,size_x, size_y):
 
 
 
-
 def getFrame(img,neg = False):
     if not neg:
         img_f = img

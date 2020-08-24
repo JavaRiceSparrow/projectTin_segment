@@ -54,6 +54,42 @@ def mergeArray(datas, axis=1, interval = 0):
 
     return np.concatenate((tdatas), axis = axis)
 
+def addWordDown(data, words):
+    # , size=20, reign = 30
+    x,y,c_axis = data.shape
+    # print(data.)
+    # if size==0:
+    #     size = int(x/12)
+    # if reign==0:
+    #     reign = size
+    if x<200:
+        size, reign = 12,16
+    elif x<500:
+        size, reign = 16,24
+    else:
+        size, reign = 20,30
+
+
+
+    space = np.zeros((reign,y,3), np.uint8)
+    data1 = mergeArray((data, space), axis=0, interval=10)
+
+    img = Image.fromarray(data1.astype('uint8'))
+    # print(type(img))
+
+
+    from PIL import ImageDraw, ImageFont
+    draw = ImageDraw.Draw(img)
+    
+    ft = ImageFont.truetype("others/Verdana.ttf", size)
+    left, top, right, bottom = ft.getmask(words).getbbox()
+    position = (x, y/2)
+    draw.text(position, words, font = ft, fill = 'white')
+
+    return img
+
+
+
 def getBiImg(path):
     data = getImg(path, Blight = True)
 
@@ -66,7 +102,7 @@ def getImg(path, Blight = False, Black = False, to_3d = False):
         img  = Image.open(path)  
     except IOError: 
         print(path + " is not a valid path.")
-        return 0
+        return None
 
     rawData = np.array(img)
     if to_3d:
@@ -77,7 +113,7 @@ def getImg(path, Blight = False, Black = False, to_3d = False):
         elif len(rawData.shape) == 2:
             return arrToImg(rawData)
         else:
-            return 0
+            return None
     if Black:
         if len(rawData.shape) == 3:
             return np.around((rawData[:,:,0] + rawData[:,:,1]+rawData[:,:,0])/3)
@@ -100,6 +136,9 @@ def getImg(path, Blight = False, Black = False, to_3d = False):
     # edge = [data[1,:], data[1:-1:]]
 
 def saveImg(data, path):
+    if type(data) == Image.Image:
+        data.save(path)
+        return
     if np.max(data) == 1:
         data = 255*data
         # data = 255*(1-data)
