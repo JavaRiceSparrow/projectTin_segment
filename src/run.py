@@ -22,17 +22,17 @@ for path_name in list1:
 
 # path_name =  sys.argv[1] 
 
-# DEF_SAVEIMG = False
+DEF_SAVEIMG = False ################################
 
 import time
 
 in_path = "Pic/"
-out_path = "output/edge2/"
+out_path = "output/edge3/"
 # pathnames = [f for f in os.listdir(in_path) if os.path.isfile(os.path.join(in_path, f))]
 pathnames = list1
 # print(onlyfiles)
 
-if 
+# if 
 # fp = open("out1.txt", "w")
 
 def processFile(path_name):
@@ -45,10 +45,19 @@ def processFile(path_name):
     # array1 = imglib.img3dTo2d(array0)
 
     start_time = time.time()
-  
-    seg_array = getSegment(array1, threshold=10)
 
     egde_array = getEdge(array0)
+    print("Edge time:\t\t--- %s seconds ---" % (time.time() - start_time))
+    start_time = time.time()
+  
+    sed_array_old = getSegment(array0, threshold=10)
+    print("Seg time without edge:\t--- %s seconds ---" % (time.time() - start_time))
+    start_time = time.time()
+  
+    seg_array = getSegment(array0, threshold=10, lamda = 0.025, edge=egde_array)
+    print("Seg time with edge:\t--- %s seconds ---" % (time.time() - start_time))
+    start_time = time.time()
+
 
     # str1 = "Edge max = " + str(np.max(egde_array)) + ", mean = " + str(np.mean(egde_array))
     # fp.write("File \""+ path_name + "\" :")
@@ -58,34 +67,47 @@ def processFile(path_name):
     # print(egde_array.shape)
     # print(np.max(egde_array))
     edata = imglib.arrToImg(255-egde_array/np.max(egde_array)*255)
+    # print(np.mean(seg_array[:,:,0]-seg_array[:,:,1]))
 
     # if seg_array==0:
     #     os._exit(0)
 
-    print("--- %s seconds ---" % (time.time() - start_time))
 
     # print(np.mean(seg_array))
 
     # array1[edge] = [255,255,255]
-
-    # size_x, size_y = array1.shape
-    # segment = np.zeros(array0.shape)
+    
+    size_x, size_y, _ = array0.shape
+    segment_old = np.zeros(array0.shape)
     # print(segment.shape)
-    # for x in range(size_x):
-    #     for y in range(size_y):
-    #         # print(seg_array)
-    #         if seg_array[x,y] !=0:
-    #             if len(segment[x,y]) !=3:
-    #                 print("?????")
-    #             segment[x,y] = np.array(color.getHue(seg_array[x,y]*10))
+    for x in range(size_x):
+        for y in range(size_y):
+            # print(seg_array)
+            if sed_array_old[x,y] !=0:
+                if len(segment_old[x,y]) !=3:
+                    print("?????")
+                segment_old[x,y] = np.array(color.getHue(sed_array_old[x,y]*10))
+    segment = np.zeros(array0.shape)
+    # print(segment.shape)
+    for x in range(size_x):
+        for y in range(size_y):
+            # print(seg_array)
+            if seg_array[x,y] !=0:
+                if len(segment[x,y]) !=3:
+                    print("?????")
+                segment[x,y] = np.array(color.getHue(seg_array[x,y]*10))
     
 
     try:
         DEF_SAVEIMG
     except NameError:
+        # not define
         pass
     else:
-        compare = imglib.mergeArray((array0, edata),axis=1, interval=20)
+        # define
+        c1 = imglib.mergeArray((array0, segment_old),axis=1, interval=20)
+        c2 = imglib.mergeArray((edata, segment),axis=1, interval=20)
+        compare = imglib.mergeArray((c1,c2),axis=0, interval=20)
         imglib.saveImg(compare, out_path+path_name)
 
 if len(sys.argv) >= 2:

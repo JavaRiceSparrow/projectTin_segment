@@ -18,11 +18,13 @@ from PIL import Image
 
 def arrToImg(data):
     if data.dtype == 'float64' and np.max(data) == 1:
-        ndata = np.around(255*data)
+        ndata = np.around(255*data).astype('uint8')
     else:
-        ndata = data.copy()
+        ndata = data.copy().astype('uint8')
+    if len(ndata.shape) == 3:
+        return ndata
     ndata = np.expand_dims(ndata, axis = 2)
-    ndata = np.concatenate([ndata, ndata, ndata], axis=2).astype('uint8')
+    ndata = np.concatenate([ndata, ndata, ndata], axis=2)
     return ndata
 
 def img3dTo2d(data):
@@ -46,11 +48,13 @@ def mergeArray(datas, axis=1, interval = 0):
             itv = np.zeros((interval,data1.shape[1],3))
         elif axis == 1:
             itv = np.zeros((data1.shape[0],interval,3))
-        for data in tdatas:
-            list1.append(data)
+    for data in tdatas:
+        list1.append(arrToImg(data))
+        if interval != 0:
             list1.append(itv)
+    if interval != 0:
         list1.pop()
-        tdatas = tuple(list1)
+    tdatas = tuple(list1)
 
     return np.concatenate((tdatas), axis = axis)
 

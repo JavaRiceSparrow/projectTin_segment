@@ -28,7 +28,15 @@ class region():
         return self.space[x,y]
 
     
-def getSegment(data, threshold = 25, delta = 4):
+def getSegment(data, threshold = 25, delta = 4, lamda = 0, edge=None):
+    b_edge = False
+    if lamda!=0:
+        if type(edge) != np.ndarray:
+            print("Edge is missed!")
+            return None
+        b_edge = True
+        edge_array = edge*lamda
+        
 
     array1 = imglib.img3dTo2d(data)
 
@@ -90,18 +98,32 @@ def getSegment(data, threshold = 25, delta = 4):
                         if seg_array[px,py] == 0 :
 
                             # it's connected
-                            if nx==px:
-                                if diff_right[px,min(ny,py)] < threshold:
-                                    reg.add(px,py)
-                                    front.put((px,py))
-                                    seg_array[px,py] = seg_idx
-                            elif ny == py:
-                                if diff_down[min(nx,px), py] < threshold:
-                                    reg.add(px,py)
-                                    front.put((px,py))
-                                    seg_array[px,py] = seg_idx
-                            else :
-                                sys.exit(333)
+                            if b_edge:
+                                if nx==px:
+                                    if diff_right[px,min(ny,py)] < threshold-edge_array[px,py]:
+                                        reg.add(px,py)
+                                        front.put((px,py))
+                                        seg_array[px,py] = seg_idx
+                                elif ny == py:
+                                    if diff_down[min(nx,px), py] < threshold-edge_array[px,py]:
+                                        reg.add(px,py)
+                                        front.put((px,py))
+                                        seg_array[px,py] = seg_idx
+                                else :
+                                    sys.exit(333)
+                            else:
+                                if nx==px:
+                                    if diff_right[px,min(ny,py)] < threshold:
+                                        reg.add(px,py)
+                                        front.put((px,py))
+                                        seg_array[px,py] = seg_idx
+                                elif ny == py:
+                                    if diff_down[min(nx,px), py] < threshold:
+                                        reg.add(px,py)
+                                        front.put((px,py))
+                                        seg_array[px,py] = seg_idx
+                                else :
+                                    sys.exit(333)
 
                     # print()
 
