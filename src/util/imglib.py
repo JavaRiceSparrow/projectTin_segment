@@ -17,7 +17,10 @@ from PIL import Image
 #       X
 
 def arrToImg(data):
-    if data.dtype == 'float64' and np.max(data) == 1:
+    if data.dtype == bool:
+        ndata = 255*(data.astype('uint8'))
+
+    elif data.dtype == 'float64' and np.max(data) == 1:
         ndata = np.around(255*data).astype('uint8')
     else:
         ndata = data.copy().astype('uint8')

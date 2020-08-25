@@ -52,25 +52,28 @@ def getFrame(img,neg = False):
 
     return np.logical_and (np.logical_not(img_f), out)
 
-def getEdge(data):
+def getEdge(data, neg = False):
     data_f = data
     
-    l = np.empty_like(data_f)
+    # l = np.empty_like(data_f)
     r = np.empty_like(data_f)
-    u = np.empty_like(data_f)
+    # u = np.empty_like(data_f)
     d = np.empty_like(data_f)
-    l[:,:-1] = data_f[:,1:]
-    l[:,-1] = data_f[:,-1]
+    # l[:,:-1] = data_f[:,1:]
+    # l[:,-1] = data_f[:,-1]
     d[:-1] = data_f[1:]
     d[-1] = data_f[-1]
     r[:,1:] = data_f[:,:-1]
     r[:,0] = data_f[:,0]
-    u[1:] = data_f[:-1]
-    u[0] = data_f[0]
-    l = np.not_equal(l,data_f)
+    # u[1:] = data_f[:-1]
+    # u[0] = data_f[0]
+    # l = np.not_equal(l,data_f)
     r = np.not_equal(r,data_f)
-    u = np.not_equal(u,data_f)
+    # u = np.not_equal(u,data_f)
     d = np.not_equal(d,data_f)
-    out = np.logical_or(np.logical_or(l,r),np.logical_or(u,d))
+    # out = np.logical_or(np.logical_or(l,r),np.logical_or(u,d))
+    out = np.logical_or(r,d)
+    if neg:
+        return np.logical_not(out)
 
     return out

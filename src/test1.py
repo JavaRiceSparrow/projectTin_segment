@@ -10,9 +10,10 @@ import numpy as np
 # print(type(array0))
 # array0 = (np.random.rand(5,5)*20).astype(int)
 
-a = np.array([0])
+a = np.array([0,1,2,3])
+b = a==2
 
-print(np.sqrt(a))
+print(b.dtype==bool)
 
 
 # a = np.array([[1,2],[3,4]])

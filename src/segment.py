@@ -44,6 +44,10 @@ def getSegment(data, threshold = 25, delta = 4, lamda = 0, edge=None):
         area = 0
     diff_down = np.abs(array1[0:-1] - array1[1:]) 
     diff_right = np.abs(array1[:,0:-1] - array1[:,1:])
+    # if b_edge:
+    #     diff_down = diff_down + edge[0:-1]
+    #     diff_right = diff_right + edge[:,0:-1]
+
     # print (diff_down)
 
     shape = (array1.shape)
@@ -98,6 +102,7 @@ def getSegment(data, threshold = 25, delta = 4, lamda = 0, edge=None):
                         if seg_array[px,py] == 0 :
 
                             # it's connected
+                           
                             if b_edge:
                                 if nx==px:
                                     if diff_right[px,min(ny,py)] < threshold-edge_array[px,py]:
