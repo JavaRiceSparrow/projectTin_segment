@@ -1,5 +1,87 @@
 
 import numpy as np
+from util import color, imglib
+
+def toColor(data, drawEdge = True):
+
+    size_x, size_y = data.shape
+    # if c!=3:
+    #     print("?????")
+    #     return None
+    out = np.zeros((size_x, size_y, 3))
+    # print(segment.shape)
+    for x in range(size_x):
+        for y in range(size_y):
+            # print(seg_array)
+            if data[x,y] !=0:
+                out[x,y] = np.array(color.getHue(data[x,y]*10))
+    if drawEdge:
+        edge = getEdge(data)
+
+        # out[edge] = [255,255,255]
+        out[edge] = [0,0,0]
+
+    return out
+def toEdge(data, drawEdge = True):
+
+    size_x, size_y = data.shape
+    # if c!=3:
+    #     print("?????")
+    #     return None
+    out = np.ones((size_x, size_y, 3))*255
+    # print(segment.shape)
+    # for x in range(size_x):
+    #     for y in range(size_y):
+    #         # print(seg_array)
+    #         if data[x,y] !=0:
+    #             out[x,y] = np.array(color.getHue(data[x,y]*10))
+    if drawEdge:
+        edge = getEdge(data)
+
+        # out[edge] = [255,255,255]
+        out[edge] = [0,0,0]
+
+    return out
+
+def combineEdge(datas, gray = True, toImg = True):
+
+    # print(datas[0].shape)
+    size_total = datas[0].shape
+    # if len(size_total) == 3:
+    #     size_x, size_y, _ = size_total
+    # else:
+    if len(size_total) ==3:
+        print("In nodelib.combineEdge : data size is 3d.")
+    size_x, size_y = size_total
+    out = np.zeros((size_x, size_y))
+    # for x in range(size_x):
+    #     for y in range(size_y):
+    #         # print(seg_array)
+    #         if data[x,y] !=0:
+    #             out[x,y] = np.array(color.getHue(data[x,y]*10))
+    edges = []
+    for data in datas:
+        edges.append(getEdge(data))
+
+        # out[edge] = [255,255,255]
+        # out[edge] = [0,0,0]
+    if not gray:
+        for edge in edges:
+            out = np.logical_or(out,edge)
+        if not toImg:
+            return out
+        out *= 255
+        return imglib.arrToImg(out)
+
+    for edge in edges:
+        out = out+edge
+    if not toImg:
+        return out/len(datas)
+    out *= 255/len(datas)
+    return imglib.arrToImg(out)
+    
+
+    return out
 
 def  getNearNode(x,y,size_x, size_y):
     if x<0 or x>=size_x:
@@ -77,3 +159,22 @@ def getEdge(data, neg = False):
         return np.logical_not(out)
 
     return out
+
+def getGradient(data, unit_len = 1, b_return_vector_form = False):
+    data_f = data
+    r = np.empty_like(data_f)
+    d = np.empty_like(data_f)
+    d[:-1] = data_f[1:]
+    d[-1] = data_f[-1]
+    r[:,1:] = data_f[:,:-1]
+    r[:,0] = data_f[:,0]
+    gx = (d-data_f)/unit_len
+    gy = (r-data_f)/unit_len
+    if b_return_vector_form:
+        return gx,gy #TODO
+
+    grad = np.sqrt(np.square(gx) + np.square(gy))
+    grad[-1] = grad[-2]
+    grad[:,-1] = grad[:,-2]
+    # print(grad.shape)
+    return grad

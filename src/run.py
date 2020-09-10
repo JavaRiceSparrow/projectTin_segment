@@ -4,7 +4,7 @@ import os, sys
 
 from util import imglib, color, nodelib
 # import color
-from segment import *
+from seg import randomSeg, segment
 # import nodelib
 
 # path_name = ""
@@ -13,21 +13,20 @@ DEF_SAVEIMG = True ################################
 DEF_BIGFILE_PASS = True ################################
 
 
-list1 = ['019.BMP', 'bowtest.bmp', 'lena_gray_label.png', 'Baboon3.bmp', '23.gif', '6.gif', '45.gif', '10.gif', 'paddle.bmp', 'lena512.bmp', '17.gif', '35.gif', 'Lena256c.bmp', 'Yoyo_4month.JPG', 'pens.bmp', '44.gif', 'fruits.bmp', 'TIFFANY.BMP', 'flag.psd', '28.gif', 'PEPPER.BMP', 'Barbara_color.jpg', '15.gif', 'drives.bmp', 'Lena_gray_512.bmp', 'baseball.bmp', 'tennis.psd', '22.gif', 'Boats.png', 'desktop.ini', 'Lena - 複製.png', 'balls.bmp', '7.gif', 'peppers256.bmp', 'planets.bmp', '37.gif', '5.gif', 'lena_256.bmp', '海灘gray.jpg', 'sailboat.jpg', 'Heater2_gray.jpg', 'beach.jpg', '4.gif', '9mm_f8.JPG', '017.BMP', 'flag.bmp', 'BABOON.BMP', 'FreshFruitVegetable.jpg', 'baby_test.bmp', 'fruits1.bmp', 'house1.bmp', 'test2.jpg', 'lena_128.bmp', '30.gif', 'Baboon1.bmp', '46.gif', 'pens_test.bmp', 'Lena_256bmp.bmp', 'flag2.jpg', '16.gif', 'door.jpg', 'LAKE.BMP', '43.gif', 'Barbara.png', 'DJJ.bmp', '40.gif', 'eclipse.bmp', '25.gif', '20.gif', 'FEFE.BMP', 'flag1.bmp', '9.gif', 'FRUIT.BMP', '41.gif', '2.gif', 'airplane.bmp', 'mandril.jpg', 'SHUTTLE.BMP', '1.gif', '48.gif', '12.gif', '47.gif', 'test2_1.bmp', '3.gif', 'baby.bmp', 'tea1.bmp', 'test4.bmp', 'bell-peppers-1420709__180.jpg', '9mm_f3.2.JPG', 'Penguin.jpg', '42.gif', 'splash.jpg', '39.gif', 'Lena256c.jpg', '8.gif', '29.gif', 'Jellyfish.jpg', 'LEAF1.BMP', '11.gif', 'IMG00g.bmp', '27.gif', 'Datasource.txt', 'BABOON - 複製.BMP', 'LEAF.JPG', 'test5.bmp', 'Heater_gray.jpg', 'baboon2.jpg', 'test2.bmp', '24.gif', 'graybaboon.bmp', '26.gif', '004.BMP', 'EARTH.BMP', 'Lena1.bmp', 'test_a.bmp', 'polygon.bmp', 'datogray.jpg', '38.gif', '13.gif', 'dofpro_toycarsDOF.jpg', 'car.jpg', '32.gif', 'LENA.BMP', 'Lena_gray_label.bmp', 'planets_color.bmp', '34.gif', 'pepper1.bmp', 'dato.JPG', 'Pepper2c.bmp', 'tennis_test.psd', 'coin.bmp', '31.gif', '14.gif', 'tea.bmp', 'test3.bmp', 'tennis.bmp', 'pens_gray.bmp', 'tea.psd', '19.gif', 'FreshFruitVegetablegray.jpg', '36.gif', 'Lena2.bmp', 'KEN.BMP', 'Lena512c.bmp', '33.gif', 'test_pen.bmp', 'House.png', 'Pepper512c.bmp', 'LEAF1.JPG', 'test3.JPG', 'lena_gray.bmp', '21.gif', 'Lena.png', '18.gif', 'test1.bmp', 'flag2.BMP', 'peppers.bmp', 'Peppers.png', 'apple.bmp', '49.gif']
+list1 = ['004.BMP', '017.BMP', '019.BMP', '1.gif', '10.gif', '11.gif', '12.gif', '13.gif', '14.gif', '15.gif', '16.gif', '17.gif', '18.gif', '19.gif', '2.gif', '20.gif', '21.gif', '22.gif', '23.gif', '24.gif', '25.gif', '26.gif', '27.gif', '28.gif', '29.gif', '3.gif', '30.gif', '31.gif', '32.gif', '33.gif', '34.gif', '35.gif', '36.gif', '37.gif', '38.gif', '39.gif', '4.gif', '40.gif', '41.gif', '42.gif', '43.gif', '44.gif', '45.gif', '46.gif', '47.gif', '48.gif', '49.gif', '5.gif', '6.gif', '7.gif', '8.gif', '9.gif', '9mm_f3.2.JPG', '9mm_f8.JPG', 'BABOON - 複製.BMP', 'BABOON.BMP', 'Baboon1.bmp', 'Baboon3.bmp', 'Barbara.png', 'Barbara_color.jpg', 'Boats.png', 'DJJ.bmp', 'Datasource.txt', 'EARTH.BMP', 'FEFE.BMP', 'FRUIT.BMP', 'FreshFruitVegetable.jpg', 'FreshFruitVegetablegray.jpg', 'Heater2_gray.jpg', 'Heater_gray.jpg', 'House.png', 'IMG00g.bmp', 'Jellyfish.jpg', 'KEN.BMP', 'LAKE.BMP', 'LEAF.JPG', 'LEAF1.BMP', 'LEAF1.JPG', 'LENA.BMP', 'Lena - 複製.png', 'Lena.png', 'Lena1.bmp', 'Lena2.bmp', 'Lena256c.bmp', 'Lena256c.jpg', 'Lena512c.bmp', 'Lena_256bmp.bmp', 'Lena_gray_512.bmp', 'Lena_gray_label.bmp', 'PEPPER.BMP', 'Penguin.jpg', 'Pepper2c.bmp', 'Pepper512c.bmp', 'Peppers.png', 'SHUTTLE.BMP', 'TIFFANY.BMP', 'Yoyo_4month.JPG', 'airplane.bmp', 'apple.bmp', 'baboon2.jpg', 'baby.bmp', 'baby_test.bmp', 'balls.bmp', 'baseball.bmp', 'beach.jpg', 'bell-peppers-1420709__180.jpg', 'bowtest.bmp', 'car.jpg', 'coin.bmp', 'dato.JPG', 'datogray.jpg', 'desktop.ini', 'dofpro_toycarsDOF.jpg', 'door.jpg', 'drives.bmp', 'eclipse.bmp', 'flag.bmp', 'flag.psd', 'flag1.bmp', 'flag2.BMP', 'flag2.jpg', 'fruits.bmp', 'fruits1.bmp', 'graybaboon.bmp', 'house1.bmp', 'lena512.bmp', 'lena_128.bmp', 'lena_256.bmp', 'lena_gray.bmp', 'lena_gray_label.png', 'mandril.jpg', 'paddle.bmp', 'pens.bmp', 'pens_gray.bmp', 'pens_test.bmp', 'pepper1.bmp', 'peppers.bmp', 'peppers256.bmp', 'planets.bmp', 'planets_color.bmp', 'polygon.bmp', 'sailboat.jpg', 'splash.jpg', 'tea.bmp', 'tea.psd', 'tea1.bmp', 'tennis.bmp', 'tennis.psd', 'tennis_test.psd', 'test1.bmp', 'test2.bmp', 'test2.jpg', 'test2_1.bmp', 'test3.JPG', 'test3.bmp', 'test4.bmp', 'test5.bmp', 'test_a.bmp', 'test_pen.bmp', '海灘gray.jpg']
 
 for path_name in list1:
     if path_name[-4:] == '.psd' or path_name[-4:] == '.ini' or path_name[-4:] == '.txt':
         list1.remove(path_name)
 
 try:
-        DEF_BIGFILE_PASS
-    except NameError:
-        # not define
-        pass
-    else:
-        list1.remove('Yoyo_4month.JPG')
-        list1.remove('9mm_f8.JPG')
-        list1.remove('9mm_f3.2.JPG')
+    DEF_BIGFILE_PASS
+except NameError:
+    pass
+else:
+    list1.remove('Yoyo_4month.JPG')
+    list1.remove('9mm_f8.JPG')
+    list1.remove('9mm_f3.2.JPG')
 
 # if len(sys.argv) != 2:
 #     print("No parameter!")
@@ -40,7 +39,7 @@ try:
 import time
 
 in_path = "Pic/"
-out_path = "output/edge3.2/"
+out_path = "output/ranSeg/3/t1_"
 # pathnames = [f for f in os.listdir(in_path) if os.path.isfile(os.path.join(in_path, f))]
 pathnames = list1
 # print(onlyfiles)
@@ -48,104 +47,59 @@ pathnames = list1
 # if 
 # fp = open("out1.txt", "w")
 
-def toColor(data):
 
-    size_x, size_y = data.shape
-    # if c!=3:
-    #     print("?????")
-    #     return None
-    out = np.zeros((size_x, size_y, 3))
-    # print(segment.shape)
-    for x in range(size_x):
-        for y in range(size_y):
-            # print(seg_array)
-            if data[x,y] !=0:
-                out[x,y] = np.array(color.getHue(data[x,y]*10))
 
-    edge = nodelib.getEdge(data)
-
-    # out[edge] = [255,255,255]
-    out[edge] = [0,0,0]
-
-    return out
-
-def processFile(path_name):
-    array0 = imglib.getImg(in_path+path_name, to_3d=True)
-    if type(array0) == None:
-        print("\""+path_name+"\" error!")
+# '''
+def processFile(in_path, out_path):
+    
+    # lamda = 2
+    data = imglib.getImg(in_path, to_3d=True)
+    data_zero = data*0
+    if type(data) == None:
+        print("\""+in_path+"\" error!")
         return
-    # print("Shape: ", end="")
-    # print(array0.shape)
-    # array1 = imglib.img3dTo2d(array0)
-
-    print("Image "+path_name+" ...")
+    print("Image "+in_path+" ...")
+    # start_time = time.time()
+    # cvEdge, cvSeg = segment.processFile(data)
+    # print("Convolution edge time:\t\t--- %8.4f seconds ---" % (time.time() - start_time))
     start_time = time.time()
-
-    egde_array = getEdge(array0)
-    print("Edge time:\t\t--- %8.4f seconds ---" % (time.time() - start_time))
-    start_time = time.time()
-  
-    seg_array_old = getSegment(array0, threshold=10)
-    print("Seg time without edge:\t--- %8.4f seconds ---" % (time.time() - start_time))
-    start_time = time.time()
-  
-    seg_array = getSegment(array0, threshold=10, lamda = 0.025, edge=egde_array)
-    print("Seg time with edge:\t--- %8.4f seconds ---" % (time.time() - start_time))
-    start_time = time.time()
-
-    # str1 = "Edge max = " + str(np.max(egde_array)) + ", mean = " + str(np.mean(egde_array))
-    # fp.write("File \""+ path_name + "\" :")
-    # fp.write(str1)
-    # fp.write("\n")
+    out = randomSeg.processFile(data)
+    print("RandomSeg edge time:\t\t--- %8.4f seconds ---" % (time.time() - start_time))
+    # start_time = time.time()
+    # c1 = (data,255-imglib.arrToImg(cvEdge),imglib.arrToImg(nodelib.toEdge(cvSeg)))
+    # c2 = (data_zero,255-imglib.arrToImg(rsContour),255-imglib.arrToImg(rsEdge))
+    # row1 = imglib.mergeArray(c1,1,20)
+    # row2 = imglib.mergeArray(c2,1,20)
+    # out = nodelib.toColor(region)
+    # out = imglib.mergeArray((data, region, region_black),1,20)
+    imglib.saveImg(out,out_path)
     
-    # print(egde_array.shape)
-    # print(np.max(egde_array))
-    edata = imglib.arrToImg(255-egde_array/np.max(egde_array)*255)
-    # print(np.mean(seg_array[:,:,0]-seg_array[:,:,1]))
-
-    # if seg_array==0:
-    #     os._exit(0)
-
-    # print(np.mean(seg_array))
-
-    # array1[edge] = [255,255,255]
-    
-    
-    # segment_old = imglib.arrToImg(nodelib.getEdge(seg_array_old, True))
-    # segment = imglib.arrToImg(nodelib.getEdge(seg_array, True))
-    segment_old = toColor(seg_array_old)
-    segment = toColor(seg_array)
-    
-
-    try:
-        DEF_SAVEIMG
-    except NameError:
-        # not define
-        pass
-    else:
-        # define
-        c1 = imglib.mergeArray((array0, segment_old),axis=1, interval=20)
-        c2 = imglib.mergeArray((edata, segment),axis=1, interval=20)
-        compare = imglib.mergeArray((c1,c2),axis=0, interval=20)
-        imglib.saveImg(compare, out_path+path_name)
+# '''
 
 if len(sys.argv) >= 2:
-    if sys.argv[1] == '-a':
+    if sys.argv[1] == '-show':
+        if len(sys.argv) == 3:
+            n = int(sys.argv[2] )
+            print("\"" + pathnames[n] + "\"")
+        else:
+            pass
+    
+    elif sys.argv[1] == '-a':
         if len(sys.argv) == 3:
             n = int(sys.argv[2] )
             for i in range(n,len(pathnames)):
-                processFile(pathnames[i])
+                processFile(in_path+ pathnames[i], out_path+ pathnames[i])
         else:
             for path_name in pathnames:
-                processFile(path_name)
+                processFile(in_path+path_name, out_path+path_name)
     else:
         i = int(sys.argv[1] )
         path_name = pathnames[i]
-        processFile(path_name)
+        processFile(in_path+path_name, out_path+path_name)
 
 else:
     for path_name in pathnames:
-        processFile(path_name)
+        processFile(in_path+path_name, out_path+path_name)
 
 
 # edge = nodelib.getEdge(array1)               
