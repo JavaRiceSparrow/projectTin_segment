@@ -28,18 +28,13 @@ else:
     list1.remove('9mm_f8.JPG')
     list1.remove('9mm_f3.2.JPG')
 
-# if len(sys.argv) != 2:
-#     print("No parameter!")
-#     os._exit(0)
-#     # if ()
 
-# path_name =  sys.argv[1] 
 
 
 import time
 
-in_path = "Pic/"
-out_path = "output/ranSeg/3/t1_"
+inpathHead = "Pic/"
+outpathHead = "output/ranSeg/4/"
 # pathnames = [f for f in os.listdir(in_path) if os.path.isfile(os.path.join(in_path, f))]
 pathnames = list1
 # print(onlyfiles)
@@ -50,7 +45,9 @@ pathnames = list1
 
 
 # '''
-def processFile(in_path, out_path):
+def testFile(path_name):
+    in_path = inpathHead + path_name
+    out_path = outpathHead + path_name
     
     # lamda = 2
     data = imglib.getImg(in_path, to_3d=True)
@@ -63,8 +60,35 @@ def processFile(in_path, out_path):
     # cvEdge, cvSeg = segment.processFile(data)
     # print("Convolution edge time:\t\t--- %8.4f seconds ---" % (time.time() - start_time))
     start_time = time.time()
+    out = randomSeg.testFile(data)
+    print("Test time:\t\t--- %8.4f seconds ---" % (time.time() - start_time))
+    # start_time = time.time()
+    # c1 = (data,255-imglib.arrToImg(cvEdge),imglib.arrToImg(nodelib.toEdge(cvSeg)))
+    # c2 = (data_zero,255-imglib.arrToImg(rsContour),255-imglib.arrToImg(rsEdge))
+    # row1 = imglib.mergeArray(c1,1,20)
+    # row2 = imglib.mergeArray(c2,1,20)
+    # out = nodelib.toColor(region)
+    # out = imglib.mergeArray((data, region, region_black),1,20)
+    imglib.saveImg(out,out_path)
+    
+def processFile(path_name):
+    in_path = inpathHead + path_name
+    # out_path = outpathHead + path_name
+    out_path = outpathHead + path_name + "_l.gif"
+    
+    # lamda = 2
+    data = imglib.getImg(in_path, to_3d=True)
+    data_zero = data*0
+    if type(data) == None:
+        print("\""+in_path+"\" error!")
+        return
+    print("Image "+in_path+" ...")
+    # start_time = time.time()
+    # cvEdge, cvSeg = segment.processFile(data)
+    # print("Convolution edge time:\t\t--- %8.4f seconds ---" % (time.time() - start_time))
+    # start_time = time.time()
     out = randomSeg.processFile(data)
-    print("RandomSeg edge time:\t\t--- %8.4f seconds ---" % (time.time() - start_time))
+    # print("RandomSeg edge time:\t\t--- %8.4f seconds ---" % (time.time() - start_time))
     # start_time = time.time()
     # c1 = (data,255-imglib.arrToImg(cvEdge),imglib.arrToImg(nodelib.toEdge(cvSeg)))
     # c2 = (data_zero,255-imglib.arrToImg(rsContour),255-imglib.arrToImg(rsEdge))
@@ -75,32 +99,50 @@ def processFile(in_path, out_path):
     imglib.saveImg(out,out_path)
     
 # '''
+def main(argv=None):
+    if argv is None:
+        argv = sys.argv
+    argLen = len(argv)
+    if argLen >= 2:
+        if argv[1] == '-show':
+            if argLen >= 3:
+                for i in range(2,argLen):
+                    n = int(argv[i] )
+                    print("\"" + pathnames[n] + "\"")
+            
+            return 0
+        if argv[1] == '-test':
+            if argLen >= 3:
+                for i in range(2,argLen):
+                    n = int(argv[i] )
+                    path_name = pathnames[n]
+                    testFile(path_name)
+            return 0
+        
+        elif argv[1] == '-a':
+            if argLen == 3:
+                n = int(argv[2] )
+                for i in range(n,len(pathnames)):
+                    processFile(pathnames[i])
+            else:
+                for path_name in pathnames:
+                    processFile(path_name)
+            return 0
+        else:
+            if argLen >= 2:
+                for i in range(1,argLen):
+                    n = int(argv[i] )
+                    path_name = pathnames[n]
+                    processFile(path_name)
+            return 0
 
-if len(sys.argv) >= 2:
-    if sys.argv[1] == '-show':
-        if len(sys.argv) == 3:
-            n = int(sys.argv[2] )
-            print("\"" + pathnames[n] + "\"")
-        else:
-            pass
-    
-    elif sys.argv[1] == '-a':
-        if len(sys.argv) == 3:
-            n = int(sys.argv[2] )
-            for i in range(n,len(pathnames)):
-                processFile(in_path+ pathnames[i], out_path+ pathnames[i])
-        else:
-            for path_name in pathnames:
-                processFile(in_path+path_name, out_path+path_name)
     else:
-        i = int(sys.argv[1] )
-        path_name = pathnames[i]
-        processFile(in_path+path_name, out_path+path_name)
+        for path_name in pathnames:
+            processFile(path_name)
+        return 0
 
-else:
-    for path_name in pathnames:
-        processFile(in_path+path_name, out_path+path_name)
-
+if __name__ == "__main__":
+    sys.exit(main())
 
 # edge = nodelib.getEdge(array1)               
 

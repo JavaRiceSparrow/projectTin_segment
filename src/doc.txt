@@ -1,5 +1,30 @@
+
+ ----- black, comx ----- 
+
 41: 44.gif, black,  farm
-2:  019.bmp,color,  lighthouse
 
 4: 10.gif, black,  fighter
 5: 11.gif, black,  bike&wall
+
+
+ ----- black, simp ----- 
+
+103: car.jpg, black
+
+
+
+114: flag2.jpg
+
+
+ ----- color, comx ----- 
+
+
+2:  019.bmp,color,  lighthouse
+72: LEAF.JPG 
+93:                  fighter
+
+
+ ----- color, simp ----- 
+
+101  bell-peppers-1420709__180.jpg
+

@@ -16,7 +16,7 @@ from PIL import Image
 #       V
 #       X
 
-def arrToImg(data):
+def arrToImg(data, inv = False):
     if data.dtype == bool:
         ndata = 255*(data.astype('uint8'))
 
@@ -24,6 +24,8 @@ def arrToImg(data):
         ndata = np.around(255*data).astype('uint8')
     else:
         ndata = data.copy().astype('uint8')
+    if inv:
+        ndata = 255-ndata
     if len(ndata.shape) == 3:
         return ndata
     ndata = np.expand_dims(ndata, axis = 2)

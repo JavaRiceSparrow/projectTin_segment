@@ -83,7 +83,7 @@ def combineEdge(datas, gray = True, toImg = True):
 
     return out
 
-def  getNearNode(x,y,size_x, size_y):
+def getNearNode(x,y,size_x, size_y):
     if x<0 or x>=size_x:
         return 0
     if y<0 or y>=size_y:
@@ -178,3 +178,37 @@ def getGradient(data, unit_len = 1, b_return_vector_form = False):
     grad[:,-1] = grad[:,-2]
     # print(grad.shape)
     return grad
+
+def changeRegionNum(data,x,y,n, visited = None, n0 = -1):
+    b_v = False
+    if type(visited) != type(None):
+        b_v = True
+        
+    size = data.shape
+    if len(size) ==3:
+        print("In nodelib.changeRegionNum : data size is 3d.")
+    if n0==-1:
+        n0 = data[x,y]
+    if n==data[x,y]:
+        return
+    plist = []
+    plist.append((x,y))
+    while plist:
+        x,y = plist.pop()
+        if b_v:
+            visited[x,y] += 1
+        p_near = getNearNode(x,y,size[0],size[1])
+        for point in p_near:
+            nx,ny = point
+            if data[nx,ny] == n0:
+                data[nx,ny] = n
+                plist.append(point)
+
+    return
+
+
+
+
+
+
+
