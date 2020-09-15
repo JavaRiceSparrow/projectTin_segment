@@ -74,7 +74,7 @@ def testFile(path_name):
 def processFile(path_name):
     in_path = inpathHead + path_name
     # out_path = outpathHead + path_name
-    out_path = outpathHead + path_name + "_l.gif"
+    out_path = outpathHead + path_name + "_l1.gif"
     
     # lamda = 2
     data = imglib.getImg(in_path, to_3d=True)
