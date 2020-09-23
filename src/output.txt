@@ -1,0 +1,21 @@
+Image Pic/10.gif ...
+RandomSeg edge time:            ---   7.4606 seconds ---
+Merge while lamda=0 time:       --- 177.7081 seconds ---
+Merge while lamda=1 time:       ---  24.0378 seconds ---
+Merge while lamda=2 time:       ---   0.6874 seconds ---
+Image Pic/11.gif ...
+RandomSeg edge time:            ---   8.1329 seconds ---
+Merge while lamda=0 time:       --- 408.9923 seconds ---
+Merge while lamda=1 time:       ---  14.2871 seconds ---
+Merge while lamda=2 time:       ---   0.6927 seconds ---
+Image Pic/LEAF.JPG ...
+RandomSeg edge time:            ---   5.5596 seconds ---
+Merge while lamda=0 time:       ---   6.1832 seconds ---
+Merge while lamda=1 time:       ---   3.4706 seconds ---
+Merge while lamda=2 time:       ---   2.5575 seconds ---
+Image Pic/019.BMP ...
+RandomSeg edge time:            ---   8.9686 seconds ---
+Merge while lamda=0 time:       ---  16.4191 seconds ---
+Merge while lamda=1 time:       ---  10.3694 seconds ---
+Merge while lamda=2 time:       ---  60.5495 seconds ---
+

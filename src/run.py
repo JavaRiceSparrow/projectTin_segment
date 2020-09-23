@@ -34,7 +34,7 @@ else:
 import time
 
 inpathHead = "Pic/"
-outpathHead = "output/ranSeg/4/"
+outpathHead = "output/largeRSeg/1/"
 # pathnames = [f for f in os.listdir(in_path) if os.path.isfile(os.path.join(in_path, f))]
 pathnames = list1
 # print(onlyfiles)
@@ -46,8 +46,10 @@ pathnames = list1
 
 # '''
 def testFile(path_name):
+    
     in_path = inpathHead + path_name
-    out_path = outpathHead + path_name
+    # out_path = outpathHead + path_name
+    out_path = outpathHead + path_name + "_t1.0.gif"
     
     # lamda = 2
     data = imglib.getImg(in_path, to_3d=True)
@@ -56,25 +58,13 @@ def testFile(path_name):
         print("\""+in_path+"\" error!")
         return
     print("Image "+in_path+" ...")
-    # start_time = time.time()
-    # cvEdge, cvSeg = segment.processFile(data)
-    # print("Convolution edge time:\t\t--- %8.4f seconds ---" % (time.time() - start_time))
-    start_time = time.time()
     out = randomSeg.testFile(data)
-    print("Test time:\t\t--- %8.4f seconds ---" % (time.time() - start_time))
-    # start_time = time.time()
-    # c1 = (data,255-imglib.arrToImg(cvEdge),imglib.arrToImg(nodelib.toEdge(cvSeg)))
-    # c2 = (data_zero,255-imglib.arrToImg(rsContour),255-imglib.arrToImg(rsEdge))
-    # row1 = imglib.mergeArray(c1,1,20)
-    # row2 = imglib.mergeArray(c2,1,20)
-    # out = nodelib.toColor(region)
-    # out = imglib.mergeArray((data, region, region_black),1,20)
     imglib.saveImg(out,out_path)
     
 def processFile(path_name):
     in_path = inpathHead + path_name
     # out_path = outpathHead + path_name
-    out_path = outpathHead + path_name + "_l1.gif"
+    out_path = outpathHead + path_name + "_l2.gif"
     
     # lamda = 2
     data = imglib.getImg(in_path, to_3d=True)

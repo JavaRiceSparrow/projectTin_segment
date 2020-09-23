@@ -55,45 +55,93 @@ class Direction(object):
         if self.dir >= 8:
             self.dir -= 8
         
+        
 class DataMgr(object):
     
     # dirList = [(0,-1),(-1,-1),(-1,0),(-1,1),(0,1),(1,1),(1,0),(1,-1)]
 
     def __init__(self, data):
         self.data = data
-        self.size = data.shape
-        self.region = np.zeros([self.size[0],self.size[1]],int)
-        self.regionList = []
+        self.shape = data.shape
+        self.size = (self.shape[0],self.shape[1])
+        self.regionInt = np.zeros([self.size[0],self.size[1]],int)
+        self.regionSumList = []
+        self.regionBList = []
+        self.regionNum = 0
+        self.regionSize = 0
+
+
         
         
-    def size(self):
-        return self.size
+    def getsize(self):
+        return self.size    
+    def getshape(self):
+        return self.shape
+
     def data(self):
         return self.data
+    def data_copy(self):
+        return self.data.copy()
     def region(self):
-        return self.region
+        return self.regionInt
     def region_copy(self):
-        return self.region.copy()
+        return self.regionInt.copy()
     def set_region(self, region):
-        self.region = region
+        self.regionInt = region
 
-    def changeRegionNum(self, pos1, pos2):
+    def mergeRegion(self, pos1, pos2):
         x1,y1 = pos1
         x2,y2 = pos2
-        reg1 = self.region[x1,y1]
-        reg2 = self.region[x2,y2]
+        reg1 = self.regionInt[x1,y1]
+        reg2 = self.regionInt[x2,y2]
+        if reg1 == reg2:
+            return
         # TODO
-        if self.regionList[reg1]< self.regionList[reg2]:
-            self.regionList[reg2] += self.regionList[reg1]
-            self.regionList[reg1] = 0
-            nodelib.changeRegionNum(self.region, x1,y1,reg2)
+        if self.regionSumList[reg1]< self.regionSumList[reg2]:
+            self.regionInt[self.regionBList[reg1]] = reg2
+            # self.regionBList[reg2] = np.logical_or(self.regionBList[reg1], self.regionBList[reg2])
+            self.regionBList[reg2][self.regionBList[reg1]] = True
+            self.regionBList[reg1] = 0
+            self.regionSumList[reg2] += self.regionSumList[reg1]
+            self.regionSumList[reg1] = 0
+            # nodelib.mergeRegion(self.region, x1,y1,reg2)
         else:
-            self.regionList[reg1] += self.regionList[reg2]
-            self.regionList[reg2] = 0
-            nodelib.changeRegionNum(self.region, x2,y2,reg1)
+            self.regionInt[self.regionBList[reg2]] = reg1
+            self.regionBList[reg1][self.regionBList[reg2]] = True
+            self.regionBList[reg2] = 0
+            self.regionSumList[reg1] += self.regionSumList[reg2]
+            self.regionSumList[reg2] = 0
+            # nodelib.mergeRegion(self.region, x2,y2,reg1)
+        self.regionNum -= 1
+        return
             
-        
-        
+
+def toMean(dataMgr, drawEdge = True):
+    # print(dataMgr.shape)
+    size_x, size_y = dataMgr.size
+
+    data = dataMgr.data_copy()
+    out = np.zeros((size_x, size_y, 3))
+    count = 0
+    for i in range(dataMgr.regionSize):
+        idx = i+1
+        if dataMgr.regionSumList[idx] == 0:
+            continue
+        count += 1
+        if count > dataMgr.regionNum:
+            print("?")
+        # if np.sum(dataMgr.regionBList[idx]) == 0:
+        #     print("?'")
+        # print(np.mean(data[dataMgr.regionBList[idx]]).shape)
+        out[dataMgr.regionBList[idx]] = np.mean(data[dataMgr.regionBList[idx]],axis = 0)
+    if drawEdge:
+        edge = nodelib.getEdge(dataMgr.regionInt)
+
+        # out[edge] = [255,255,255]
+        out[edge] = np.array([0,0,0])
+
+    return out
+      
 
 def getSimpSegment(data, lamda = 0.2, num = 20, iteration=15):
     size = data.shape
@@ -164,7 +212,7 @@ def getSimpSegment(data, lamda = 0.2, num = 20, iteration=15):
 def mergeAreaAdj(dataMgr, threshold):
     data = dataMgr.data
     size = dataMgr.size
-    regions = dataMgr.region
+    regions = dataMgr.regionInt
     # th_sq = threshold**2
     
     # size = data.shape
@@ -182,18 +230,19 @@ def mergeAreaAdj(dataMgr, threshold):
     dif_d = np.square(cy_d)+np.square(cb_d)+np.square(cr_d)
     dif_r = np.square(cy_r)+np.square(cb_r)+np.square(cr_r)
 
-    edge = nodelib.getEdge(regions)
+    edge_d = regions[:-1,:] != regions[1:,:]
+    edge_r = regions[:,:-1] != regions[:,1:]
 
     for x in range(size[0]-1):
         for y in range(size[1]):
-            if edge[x,y] and dif_d[x,y]<=threshold:
-                dataMgr.changeRegionNum((x+1,y),(x,y))#, visited)
+            if edge_d[x,y] and (dif_d[x,y]<=threshold):
+                dataMgr.mergeRegion((x+1,y),(x,y))#, visited)
 
 
     for x in range(size[0]):
         for y in range(size[1]-1):
-            if edge[x,y] and dif_r[x,y]<=threshold:
-                dataMgr.changeRegionNum((x,y+1),(x,y))#, visited)
+            if edge_r[x,y] and (dif_r[x,y]<=threshold):
+                dataMgr.mergeRegion((x,y+1),(x,y))#, visited)
 
     # imglib.showImg(imglib.arrToImg(visited))
     # print(np.mean(visited))
@@ -206,7 +255,7 @@ def getLargeSegment(dataMgr, num = 1000, l1=2,l2=1, move_step = 4):
 
     data = dataMgr.data
     size = dataMgr.size
-    region = dataMgr.region
+    region = dataMgr.regionInt
 
     # size = data.shape
     # region = np.zeros((size[0],size[1]))
@@ -299,17 +348,22 @@ def getLargeSegment(dataMgr, num = 1000, l1=2,l2=1, move_step = 4):
         posList.append((pos_x,pos_y,cy,cb,cr))
     
     sortedList = sorted(posList)
+    # for i in range(num):
 
     # dists = np.zeros((num,size[0],size[1]))
     # blocks = np.zeros((num,size[0],size[1]), bool)
     prepos = (-1,-1)
-    dataMgr.regionList.append(-1)
+    dataMgr.regionSumList.append(-1)
+    dataMgr.regionSize = num
+    # 
     for i in range(num):
-        dataMgr.regionList.append(0)
+        dataMgr.regionSumList.append(0)
         # get dist
         (pos_x,pos_y,c_y,c_b,c_r) = sortedList[i]
         if (pos_x,pos_y) == prepos:
+            # dataMgr.regionBList = 0
             continue
+        dataMgr.regionNum += 1
         prepos = (pos_x,pos_y)
         r_x1, r_x2, r_y1, r_y2 = getRange(pos_x,pos_y)
         x_dist = x_arr[r_x1:r_x2, r_y1:r_y2]-pos_x
@@ -322,16 +376,30 @@ def getLargeSegment(dataMgr, num = 1000, l1=2,l2=1, move_step = 4):
             np.square(cy_dist) + l1*(np.square(cb_dist) + np.square(cr_dist)) )
         
         # b_less = np.less(dist_tem,dist[r_x1:r_x2, r_y1:r_y2])
-        # print(str(len(dataMgr.regionList))+ ':')
+        # print(str(len(dataMgr.regionSumList))+ ':')
         for x in range(r_x1,r_x2):
             for y in range(r_y1, r_y2):
                 # print(r_x1,r_x2,r_y1, r_y2)
                 if dist_tem[x-r_x1,y-r_y1] < dist[x,y]:
                     # not region[x,y] and 
+                    old_reg = region[x,y]
                     dist[x,y] = dist_tem[x-r_x1,y-r_y1]
                     region[x,y] = i+1
                     # print(i+1)
-                    dataMgr.regionList[i+1] += 1
+                    dataMgr.regionSumList[old_reg] -= 1
+                    dataMgr.regionSumList[i+1] += 1
+    dataMgr.regionBList.append(0)
+    for i in range(num):
+        idx = i+1
+        dataMgr.regionBList.append(region == idx) #np.zeros((size[0],size[1]),bool)
+
+        # if np.sum(dataMgr.regionBList[idx]) != dataMgr.regionSumList[idx]:
+        #     print(np.sum(dataMgr.regionBList[idx]) ," ", dataMgr.regionSumList[idx])
+        
+
+    
+    
+
 
         
   
@@ -361,7 +429,7 @@ def processFile(data):
     start_time = time.time()
     getLargeSegment(dataMgr, 1000,l1,l2)
     output0 = dataMgr.region_copy()
-    if np.mean(output0)!=np.mean(dataMgr.region):
+    if np.mean(output0)!=np.mean(dataMgr.region()):
         print("Wrong!")
     print("RandomSeg edge time:\t\t--- %8.4f seconds ---" % (time.time() - start_time))
 
@@ -370,26 +438,30 @@ def processFile(data):
     start_time = time.time()
     mergeThreshold = 0
     # out1 = output0.copy()
+    
+    oc0 = toMean(dataMgr)
     mergeAreaAdj(dataMgr, mergeThreshold)
     out1 = dataMgr.region_copy()
-    print("Merge while lamda=0 time:\t\t--- %8.4f seconds ---" % (time.time() - start_time))
+    print("Merge while lamda=%d time:\t--- %8.4f seconds ---" % (mergeThreshold,time.time() - start_time))
+    oc1 = toMean(dataMgr)
 
     start_time = time.time()
     mergeThreshold = 1
     mergeAreaAdj(dataMgr, mergeThreshold)
     out2 = dataMgr.region_copy()
-    print("Merge while lamda=1 time:\t\t--- %8.4f seconds ---" % (time.time() - start_time))
+    print("Merge while lamda=%d time:\t--- %8.4f seconds ---" % (mergeThreshold,time.time() - start_time))
+    oc2 = toMean(dataMgr)
 
     start_time = time.time()
     mergeThreshold = 2
     mergeAreaAdj(dataMgr, mergeThreshold)
     out3 = dataMgr.region_copy()
-    print("Merge while lamda=2 time:\t\t--- %8.4f seconds ---" % (time.time() - start_time))
+    print("Merge while lamda=%d time:\t--- %8.4f seconds ---" % (mergeThreshold,time.time() - start_time))
+    oc3 = toMean(dataMgr)
 
-    oc0 = nodelib.toColor(output0)
-    oc1 = nodelib.toColor(out1)
-    oc2 = nodelib.toColor(out2)
-    oc3 = nodelib.toColor(out3)
+    # oc1 = nodelib.toColor(out1)
+    # oc2 = nodelib.toColor(out2)
+    # oc3 = nodelib.toColor(out3)
     # blend1 = 255-nodelib.combineEdge(list0)
     # list1 = list0_o[0:4]
     # list1.insert(0,array0)
@@ -411,20 +483,37 @@ def processFile(data):
 
 def testFile(data):
 
-    l1 = 1.5
+    dataMgr = DataMgr(data)
+    # array0 = dataMgr.data
+    list0 = []
+    list0_o = []
+    l1 = 2
+    l2 = 1
+    start_time = time.time()
+    for i in range(6):
 
-    array0 = data
+        seg = getLargeSegment(dataMgr, 1000,l1,l2).copy()
+        # print("Dealing time:\t\t--- %8.4f seconds ---" % (time.time() - start_time))
+        list0.append(seg)
+        list0_o.append(nodelib.toColor(seg,drawEdge=True))
+        # start_time = time.time()
+    print("Dealing time:\t\t--- %8.4f seconds ---" % (time.time() - start_time))
 
+    # getLargeSegment(dataMgr, 1000,l1,l2)
+    # output0 = dataMgr.region_copy()
+    o1 = imglib.mergeArray(tuple(list0_o[0:3]),1,20)
+    o2 = imglib.mergeArray(tuple(list0_o[3:6]),1,20)
+    output = imglib.mergeArray((o1,o2),0,20)
+   
 
-    ycc = imglib.RGBtoYCbCr(data)
-    cy_arr = ycc[:,:,0]
-    cb_arr = ycc[:,:,1]
-    cr_arr = ycc[:,:,2]
-    grad_func = cy_arr + np.sqrt(l1)*(cb_arr+cr_arr)
-    grad = nodelib.getGradient(grad_func)
-    imgGrad = imglib.arrToImg(grad,True)
-    out = imglib.mergeArray((array0,imgGrad),1,20)
-    return out
+    
+    return imglib.arrToImg(output)
+    # imglib.saveImg(out,out_path)
+    # print(out2.shape)
+    
+    # return out1,out2
+    # return out1
+
 
 
 '''
