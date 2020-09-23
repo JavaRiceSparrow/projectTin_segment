@@ -2,37 +2,15 @@
 import numpy as np
 from util import color, imglib
 
-def toMean(dataMgr, drawEdge = True):
-
-    size_x, size_y = dataMgr.size
-    # if c!=3:
-    #     print("?????")
-    #     return None
-    out = np.zeros((size_x, size_y, 3))
-    # print(segment.shape)
-    # for x in range(size_x):
-    #     for y in range(size_y):
-    #         # print(seg_array)
-    #         if data[x,y] !=0:
-    #             out[x,y] = np.array(np.mean(Image[data]))
-    # nMax = np.max(data)+1
-    count = 0
-    for i in range(dataMgr.regionSize):
-        idx = i+1
-        if dataMgr.regionSumList[idx] == 0:
-            continue
-        count += 1
-        if count > dataMgr.regionNum:
-            print("?")
-        
-        out[dataMgr.regionBlist[idx]] = np.mean(dataMgr.regionInt[dataMgr.regionBlist[idx]],axis = 3)
-    if drawEdge:
-        edge = getEdge(data)
-
-        # out[edge] = [255,255,255]
-        out[edge] = [0,0,0]
-
-    return out
+def arr_equal(a1,a2):
+    if a1.shape != a2.shape:
+        return None
+    if len(a1.shape) != 1:
+        return None
+    for i in range(a1.shape[0]):
+        if a1[i] != a2[i]:
+            return False
+    return True
 
 def toColor(data, drawEdge = True):
 

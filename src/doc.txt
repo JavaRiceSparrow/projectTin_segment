@@ -13,6 +13,7 @@
 
 103: car.jpg, black
 
+97 baby_test.bmp
 
 
 114: flag2.jpg
@@ -24,6 +25,8 @@
 2:  019.bmp,color,  lighthouse
 72: LEAF.JPG 
 93:                  fighter
+
+121 lena_256.bmp
 
 
  ----- color, simp ----- 

@@ -49,7 +49,7 @@ def testFile(path_name):
     
     in_path = inpathHead + path_name
     # out_path = outpathHead + path_name
-    out_path = outpathHead + path_name + "_t1.0.gif"
+    out_path = outpathHead + path_name + "_t1.gif"
     
     # lamda = 2
     data = imglib.getImg(in_path, to_3d=True)
@@ -64,7 +64,7 @@ def testFile(path_name):
 def processFile(path_name):
     in_path = inpathHead + path_name
     # out_path = outpathHead + path_name
-    out_path = outpathHead + path_name + "_l2.gif"
+    out_path = outpathHead + path_name + "_l3.gif"
     
     # lamda = 2
     data = imglib.getImg(in_path, to_3d=True)
@@ -74,18 +74,7 @@ def processFile(path_name):
         return
     print("Image "+in_path+" ...")
     # start_time = time.time()
-    # cvEdge, cvSeg = segment.processFile(data)
-    # print("Convolution edge time:\t\t--- %8.4f seconds ---" % (time.time() - start_time))
-    # start_time = time.time()
     out = randomSeg.processFile(data)
-    # print("RandomSeg edge time:\t\t--- %8.4f seconds ---" % (time.time() - start_time))
-    # start_time = time.time()
-    # c1 = (data,255-imglib.arrToImg(cvEdge),imglib.arrToImg(nodelib.toEdge(cvSeg)))
-    # c2 = (data_zero,255-imglib.arrToImg(rsContour),255-imglib.arrToImg(rsEdge))
-    # row1 = imglib.mergeArray(c1,1,20)
-    # row2 = imglib.mergeArray(c2,1,20)
-    # out = nodelib.toColor(region)
-    # out = imglib.mergeArray((data, region, region_black),1,20)
     imglib.saveImg(out,out_path)
     
 # '''
