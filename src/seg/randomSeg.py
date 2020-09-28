@@ -213,7 +213,7 @@ def getSimpSegment(data, lamda = 0.2, num = 20, iteration=15):
 
     return region
 
-def mergeAreaAdj(dataMgr, threshold):
+def mergeAreaAdj(dataMgr, w1,w2,w3,w4):
     data = dataMgr.Ydata
     size = dataMgr.size
     regions = dataMgr.regionInt
@@ -308,7 +308,10 @@ def meanMergeAreaAdj(dataMgr, threshold):
     # print(np.mean(visited))
     # print(np.mean(visited[visited != 0]))
 
-
+def merge(dataMgr, w1,w2,w3,w4):
+    mergeThreshold = 1
+    meanMergeAreaAdj(dataMgr, mergeThreshold)
+    mergeAreaAdj(dataMgr, w1,w2,w3,w4)
 
 
 def getLargeSegment(dataMgr, num = 1000, l1=2,l2=1, move_step = 4):
@@ -479,7 +482,7 @@ def getLargeSegment(dataMgr, num = 1000, l1=2,l2=1, move_step = 4):
 def processFile(data):
     dataMgr = DataMgr(data)
 
-    DEF_PRINT_EDGE = True
+    # DEF_PRINT_EDGE = True
 
     #dataMgr = DataMgr(data)
     # array0 = dataMgr.data
@@ -508,12 +511,14 @@ def processFile(data):
     start_time = time.time()
     # out1 = output0.copy()
     
-    oc0 = toMean(dataMgr,DEF_PRINT_EDGE)
+    oc0 = toMean(dataMgr,False)
+    oce0 = toMean(dataMgr,True)
     out1 = dataMgr.region_copy()
-    mergeThreshold = 5
+    mergeThreshold = 2
     meanMergeAreaAdj(dataMgr, mergeThreshold)
     print("Mean merge while lamda=%d time:\t--- %8.4f seconds ---" % (mergeThreshold,time.time() - start_time))
-    oc1 = toMean(dataMgr,DEF_PRINT_EDGE)
+    oc1 = toMean(dataMgr,False)
+    oce1 = toMean(dataMgr,True)
 
     # mergeThreshold = 0
 
@@ -522,21 +527,24 @@ def processFile(data):
     mergeAreaAdj(dataMgr, mergeThreshold)
     out2 = dataMgr.region_copy()
     print("Merge while lamda=%d time:\t--- %8.4f seconds ---" % (mergeThreshold,time.time() - start_time))
-    oc2 = toMean(dataMgr,DEF_PRINT_EDGE)
+    oc2 = toMean(dataMgr,False)
+    oce2 = toMean(dataMgr,True)
 
     start_time = time.time()
     mergeThreshold = 1
     mergeAreaAdj(dataMgr, mergeThreshold)
     out3 = dataMgr.region_copy()
     print("Merge while lamda=%d time:\t--- %8.4f seconds ---" % (mergeThreshold,time.time() - start_time))
-    oc3 = toMean(dataMgr,DEF_PRINT_EDGE)
+    oc3 = toMean(dataMgr,False)
+    oce3 = toMean(dataMgr,True)
 
 
-    outList = imglib.mergeArray(tuple([dataMgr.data,oc0,oc1,oc2,oc3]),axis=1, interval=20)
+    outRow1 = imglib.mergeArray(tuple([dataMgr.data,oc0,oc1,oc2,oc3]),axis=1, interval=20)
+    outRow2 = imglib.mergeArray(tuple([np.zeros(dataMgr.data.shape),oce0,oce1,oce2,oce3]),axis=1, interval=20)
     # out2 = imglib.mergeArray(tuple(list2),axis=1, interval=20)
 
     # out = imglib.mergeArray((out1,out2),0,20)
-    return outList
+    return imglib.mergeArray((outRow1,outRow2),axis=0, interval=20)
 
 
 def testFile(data):

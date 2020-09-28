@@ -211,7 +211,9 @@ def getEdge(data):
 
     return np.sqrt(gsquare)
 
+def 
 
+def getRidge(data)
 
 def matrixConvolution(data, filter, axis_along = 0):
     if type(data) != np.ndarray:

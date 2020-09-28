@@ -34,7 +34,7 @@ else:
 import time
 
 inpathHead = "Pic/"
-outpathHead = "output/largeRSeg/1/"
+outpathHead = "output/largeRSeg/2/"
 # pathnames = [f for f in os.listdir(in_path) if os.path.isfile(os.path.join(in_path, f))]
 pathnames = list1
 # print(onlyfiles)
@@ -64,7 +64,7 @@ def testFile(path_name):
 def processFile(path_name):
     in_path = inpathHead + path_name
     # out_path = outpathHead + path_name
-    out_path = outpathHead + path_name + "_l3.gif"
+    out_path = outpathHead + path_name + "_l1.gif"
     
     # lamda = 2
     data = imglib.getImg(in_path, to_3d=True)
