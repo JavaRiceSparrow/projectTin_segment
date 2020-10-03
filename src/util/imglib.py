@@ -298,5 +298,34 @@ def RGBtoYCbCr(rgbArray):
 
     return outArray
 
+def RGBtoLAB(rgbArray):
+    if len(rgbArray.shape) !=3:
+        return None
+
+    r,g,b = rgbArray[:,:,0], rgbArray[:,:,1], rgbArray[:,:,2]
+    # transMatrix = np.array()
+    outArray = np.empty_like(rgbArray).astype(float)
+
+    R = r/255.0
+    G = g/255.0
+    B = b/255.0
+    # x/12.92
+    Rf = R[R>0.04045]
+    R[Rf] = ((R[Rf]+0.055)/1.055)**2.4
+    R[not Rf] = R[not Rf]/12.92 #np.inv(
+    Gf = G[G>0.04045]
+    G[Gf] = ((G[Gf]+0.055)/1.055)**2.4
+    G[not Gf] = G[not Gf]/12.92 
+    Bf = B[B>0.04045]   
+    B[Bf] = ((B[Bf]+0.055)/1.055)**2.4
+    B[not Bf] = B[not Bf]/12.92 
+    
+
+    outArray[:,:,0] = R * 0.4124 + G * 0.3576 + B * 0.1805
+    outArray[:,:,1] = R * 0.2126 + G * 0.7152 + B * 0.0722
+    outArray[:,:,2] = R * 0.0193 + G * 0.1192 + B * 0.9505
+
+    return outArray
+
 # x = np.array([[1,0,1], [0,1,1],[0,1,0],[1,0,0]])
 # print(moment(x,1,2))

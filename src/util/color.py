@@ -42,3 +42,20 @@ def getHueRaw(color):
     # elif c<360:
     else:
         return (255,0,255*(360-c)/60)
+
+# def color_gamma(x,b_255 = True):
+
+    # g_data = np.empty_like( color_gamma)
+    # r,g,b = data
+    # if b_255:
+    #     x0 = x/255.0
+    # else:
+    #     x0 = x
+    # if x0>1 or x0<0 :
+    #     print("Wrong!")
+    #     return None
+    # if x0>0.04045:
+    #     return ((x+0.055)/1.055)**2.4
+    # else:
+    #     return x/12.92
+

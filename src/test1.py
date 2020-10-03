@@ -29,7 +29,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 i = 2
 dx = 0.5/i
-length = 15/dx
+length = 6/dx
 sigma = float(sys.argv[1])
 x_axis = (np.arange((length*2+1))-length)*dx
 x_2 = np.square(x_axis)

@@ -34,7 +34,7 @@ else:
 import time
 
 inpathHead = "Pic/"
-outpathHead = "output/largeRSeg/2/"
+outpathHead = "output/largeRSeg/3/"
 # pathnames = [f for f in os.listdir(in_path) if os.path.isfile(os.path.join(in_path, f))]
 pathnames = list1
 # print(onlyfiles)
@@ -59,6 +59,7 @@ def testFile(path_name):
         return
     print("Image "+in_path+" ...")
     out = randomSeg.testFile(data)
+    print("Save as "+out_path+" ...")
     imglib.saveImg(out,out_path)
     
 def processFile(path_name):
@@ -73,8 +74,8 @@ def processFile(path_name):
         print("\""+in_path+"\" error!")
         return
     print("Image "+in_path+" ...")
-    # start_time = time.time()
     out = randomSeg.processFile(data)
+    print("Save as "+out_path+" ...")
     imglib.saveImg(out,out_path)
     
 # '''

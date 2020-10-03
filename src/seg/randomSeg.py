@@ -3,6 +3,7 @@ import random
 import sys
 # sys.path.append(".")
 from util import nodelib, imglib
+from seg import seglib
 import time
 
 in_path_str = "Pic/"
@@ -213,17 +214,13 @@ def getSimpSegment(data, lamda = 0.2, num = 20, iteration=15):
 
     return region
 
-def mergeAreaAdj(dataMgr, w1,w2,w3,w4):
+def mergeRegionAdj(dataMgr, threshold):
     data = dataMgr.Ydata
     size = dataMgr.size
     regions = dataMgr.regionInt
-    # th_sq = threshold**2
-    
-    # size = data.shape
 
-    visited = np.zeros((size[0],size[1]))
     # if len(size) == 3:
-    #     print("randomseg.mergeAreaAdj: wrong input size!")
+    #     print("randomseg.mergeRegionAdj: wrong input size!")
     #     return regions
     cy_d = data[:-1,:,0]-data[1:,:,0]
     cy_r = data[:,:-1,0]-data[:,1:,0]
@@ -251,12 +248,58 @@ def mergeAreaAdj(dataMgr, w1,w2,w3,w4):
             if edge_r[x,y] and (dif_r[x,y]<=threshold):
                 dataMgr.mergeRegion((x,y+1),(x,y))#, visited)
 
+
+def getChara2(data, w1,w2,w3,w4):
+
+    cy_d = data[:-1,:,0]-data[1:,:,0]
+    cy_r = data[:,:-1,0]-data[:,1:,0]
+    cb_d = data[:-1,:,1]-data[1:,:,1]
+    cb_r = data[:,:-1,1]-data[:,1:,1]
+    cr_d = data[:-1,:,2]-data[1:,:,2]
+    cr_r = data[:,:-1,2]-data[:,1:,2]
+    cdif_d = w1*np.abs(cy_d)+w2*np.abs(cb_d)+w2*np.abs(cr_d)
+    cdif_r = w1*np.abs(cy_r)+w2*np.abs(cb_r)+w2*np.abs(cr_r)
+    covEdge = seglib.getEdge(data)
+    covRedge = seglib.getRidge(data)
+    diff_d = cdif_d + w3*covEdge[:-1] + w4*covRedge[:-1]
+    diff_r = cdif_r + w3*covEdge[:,:-1] + w4*covRedge[:,:-1]
+    return diff_d,diff_r
+
+def mergeRegion2(dataMgr, w1,w2,w3,w4, threshold):
+
+    data = dataMgr.Ydata
+    size = dataMgr.size
+    regions = dataMgr.regionInt
+    # th_sq = threshold**2
+
+    # if len(size) == 3:
+    #     print("randomseg.mergeRegionAdj: wrong input size!")
+    #     return regions
+    diff_d,diff_r = getChara2(data,w1,w2,w3,w4)
+    difReg_d = regions[:-1,:] != regions[1:,:]
+    difReg_r = regions[:,:-1] != regions[:,1:]
+
+
+    # print("d down:",np.mean(dif_d))
+    # print("d right:",np.mean(dif_r))
+
+    for x in range(size[0]-1):
+        for y in range(size[1]):
+            if difReg_d[x,y] and (diff_d[x,y]<=threshold):
+                dataMgr.mergeRegion((x+1,y),(x,y))#, visited)
+
+
+    for x in range(size[0]):
+        for y in range(size[1]-1):
+            if difReg_r[x,y] and (diff_r[x,y]<=threshold):
+                dataMgr.mergeRegion((x,y+1),(x,y))#, visited)
+
     # imglib.showImg(imglib.arrToImg(visited))
     # print(np.mean(visited))
     # print(np.mean(visited[visited != 0]))
 
 
-def meanMergeAreaAdj(dataMgr, threshold):
+def meanmergeRegionAdj(dataMgr, threshold):
     data = dataMgr.Ydata
     cRegion = toMean(dataMgr,False)
     # print(cRegion.dtype)
@@ -269,7 +312,7 @@ def meanMergeAreaAdj(dataMgr, threshold):
 
     visited = np.zeros((size[0],size[1]))
     # if len(size) == 3:
-    #     print("randomseg.mergeAreaAdj: wrong input size!")
+    #     print("randomseg.mergeRegionAdj: wrong input size!")
     #     return regions
     cy_d = cRegion[:-1,:,0]-cRegion[1:,:,0]
     cy_r = cRegion[:,:-1,0]-cRegion[:,1:,0]
@@ -280,8 +323,8 @@ def meanMergeAreaAdj(dataMgr, threshold):
     dif_d = np.square(cy_d)+np.square(cb_d)+np.square(cr_d)
     dif_r = np.square(cy_r)+np.square(cb_r)+np.square(cr_r)
 
-    edge_d = regions[:-1,:] != regions[1:,:]
-    edge_r = regions[:,:-1] != regions[:,1:]
+    difReg_d = regions[:-1,:] != regions[1:,:]
+    difReg_r = regions[:,:-1] != regions[:,1:]
 
     # print("dmin down:",np.min(dif_d))
     # print("dmin right:",np.min(dif_r))
@@ -291,16 +334,16 @@ def meanMergeAreaAdj(dataMgr, threshold):
 
     for x in range(size[0]-1):
         for y in range(size[1]):
-            if edge_d[x,y] and (dif_d[x,y]<=threshold):
-            # if edge_d[x,y] and nodelib.arr_equal(cRegion[x,y],cRegion[x+1,y]):
+            if difReg_d[x,y] and (dif_d[x,y]<=threshold):
+            # if difReg_d[x,y] and nodelib.arr_equal(cRegion[x,y],cRegion[x+1,y]):
                 # print(cRegion[x,y],cRegion[x+1,y])
                 dataMgr.mergeRegion((x+1,y),(x,y))#, visited)
 
 
     for x in range(size[0]):
         for y in range(size[1]-1):
-            if edge_r[x,y] and (dif_r[x,y]<=threshold):
-            # if edge_r[x,y] and nodelib.arr_equal(cRegion[x,y],cRegion[x,y+1]):
+            if difReg_r[x,y] and (dif_r[x,y]<=threshold):
+            # if difReg_r[x,y] and nodelib.arr_equal(cRegion[x,y],cRegion[x,y+1]):
                 # print(cRegion[x,y],cRegion[x,y+1])
                 dataMgr.mergeRegion((x,y+1),(x,y))#, visited)
 
@@ -308,13 +351,17 @@ def meanMergeAreaAdj(dataMgr, threshold):
     # print(np.mean(visited))
     # print(np.mean(visited[visited != 0]))
 
-def merge(dataMgr, w1,w2,w3,w4):
-    mergeThreshold = 1
-    meanMergeAreaAdj(dataMgr, mergeThreshold)
-    mergeAreaAdj(dataMgr, w1,w2,w3,w4)
+# def merge(dataMgr, w1,w2,w3,w4):
+#     mergeThreshold = 1
+#     meanmergeRegionAdj(dataMgr, mergeThreshold)
+#     mergeRegionAdj(dataMgr, w1,w2,w3,w4)
 
 
 def getLargeSegment(dataMgr, num = 1000, l1=2,l2=1, move_step = 4):
+    '''
+    l1: cbcr gain
+    l2: dist gain
+    '''
 
     data = dataMgr.data
     size = dataMgr.size
@@ -482,23 +529,14 @@ def getLargeSegment(dataMgr, num = 1000, l1=2,l2=1, move_step = 4):
 def processFile(data):
     dataMgr = DataMgr(data)
 
-    # DEF_PRINT_EDGE = True
-
-    #dataMgr = DataMgr(data)
-    # array0 = dataMgr.data
-    # list0 = []
-    # list0_o = []
     l1 = 2
     l2 = 0.5
-    # for i in range(8):
-
-    #     seg = getLargeSegment(array0, 1000,l1,l2)
-    #     # print("Dealing time:\t\t--- %8.4f seconds ---" % (time.time() - start_time))
-    #     list0.append(seg)
-    #     list0_o.append(nodelib.toColor(seg,drawEdge=True))
-    #     # start_time = time.time()
-    #     # seg_color = nodelib.toColor(seg)
-    #     # list0.append(seg_color)
+    w1 = 1
+    w2 = w1*l1
+    w3 = 0.8
+    w4 = 1
+    threshold = 25
+    
     start_time = time.time()
     getLargeSegment(dataMgr, 1000,l1,l2)
     output0 = dataMgr.region_copy()
@@ -506,16 +544,15 @@ def processFile(data):
         print("Wrong!")
     print("RandomSeg edge time:\t\t--- %8.4f seconds ---" % (time.time() - start_time))
     
-    # print(output0.shape)
-    
     start_time = time.time()
-    # out1 = output0.copy()
     
     oc0 = toMean(dataMgr,False)
     oce0 = toMean(dataMgr,True)
-    out1 = dataMgr.region_copy()
+    # out1 = dataMgr.region_copy()
     mergeThreshold = 2
-    meanMergeAreaAdj(dataMgr, mergeThreshold)
+    meanmergeRegionAdj(dataMgr, mergeThreshold)
+    mergeThreshold = 0
+    mergeRegionAdj(dataMgr, mergeThreshold)
     print("Mean merge while lamda=%d time:\t--- %8.4f seconds ---" % (mergeThreshold,time.time() - start_time))
     oc1 = toMean(dataMgr,False)
     oce1 = toMean(dataMgr,True)
@@ -523,24 +560,14 @@ def processFile(data):
     # mergeThreshold = 0
 
     start_time = time.time()
-    mergeThreshold = 0
-    mergeAreaAdj(dataMgr, mergeThreshold)
-    out2 = dataMgr.region_copy()
+    mergeRegion2(dataMgr, w1,w2,w3,w4,threshold)
+    # out2 = dataMgr.region_copy()
     print("Merge while lamda=%d time:\t--- %8.4f seconds ---" % (mergeThreshold,time.time() - start_time))
     oc2 = toMean(dataMgr,False)
     oce2 = toMean(dataMgr,True)
 
-    start_time = time.time()
-    mergeThreshold = 1
-    mergeAreaAdj(dataMgr, mergeThreshold)
-    out3 = dataMgr.region_copy()
-    print("Merge while lamda=%d time:\t--- %8.4f seconds ---" % (mergeThreshold,time.time() - start_time))
-    oc3 = toMean(dataMgr,False)
-    oce3 = toMean(dataMgr,True)
-
-
-    outRow1 = imglib.mergeArray(tuple([dataMgr.data,oc0,oc1,oc2,oc3]),axis=1, interval=20)
-    outRow2 = imglib.mergeArray(tuple([np.zeros(dataMgr.data.shape),oce0,oce1,oce2,oce3]),axis=1, interval=20)
+    outRow1 = imglib.mergeArray(tuple([dataMgr.data,oc0,oc1,oc2]),axis=1, interval=20)
+    outRow2 = imglib.mergeArray(tuple([np.zeros(dataMgr.data.shape),oce0,oce1,oce2]),axis=1, interval=20)
     # out2 = imglib.mergeArray(tuple(list2),axis=1, interval=20)
 
     # out = imglib.mergeArray((out1,out2),0,20)
@@ -565,38 +592,13 @@ def testFile(data):
     #     # seg_color = nodelib.toColor(seg)
     #     # list0.append(seg_color)
     start_time = time.time()
-    getLargeSegment(dataMgr, 1000,l1,l2)
-    output0 = dataMgr.region_copy()
-    if np.mean(output0)!=np.mean(dataMgr.region()):
-        print("Wrong!")
-    print("RandomSeg edge time:\t\t--- %8.4f seconds ---" % (time.time() - start_time))
+    covRedge = seglib.getRidge(dataMgr.data)
+    # output0 = dataMgr.region_copy()
+    # if np.mean(output0)!=np.mean(dataMgr.region()):
+    #     print("Wrong!")
+    print("covRedge edge time:\t\t--- %8.4f seconds ---" % (time.time() - start_time))
+    out1 = imglib.arrToImg(covRedge,True)
     
-    # print(output0.shape)
-    
-    start_time = time.time()
-    mergeThreshold = 0
-    # out1 = output0.copy()
-    
-    oc0 = toMean(dataMgr,DEF_PRINT_EDGE)
-    mergeAreaAdj(dataMgr, mergeThreshold)
-    out1 = dataMgr.region_copy()
-    print("Merge while lamda=%d time:\t--- %8.4f seconds ---" % (mergeThreshold,time.time() - start_time))
-    oc1 = toMean(dataMgr,DEF_PRINT_EDGE)
-
-    start_time = time.time()
-    mergeThreshold = 1
-    mergeAreaAdj(dataMgr, mergeThreshold)
-    out2 = dataMgr.region_copy()
-    print("Merge while lamda=%d time:\t--- %8.4f seconds ---" % (mergeThreshold,time.time() - start_time))
-    oc2 = toMean(dataMgr,DEF_PRINT_EDGE)
-
-    start_time = time.time()
-    mergeThreshold = 2
-    mergeAreaAdj(dataMgr, mergeThreshold)
-    out3 = dataMgr.region_copy()
-    print("Merge while lamda=%d time:\t--- %8.4f seconds ---" % (mergeThreshold,time.time() - start_time))
-    oc3 = toMean(dataMgr,DEF_PRINT_EDGE)
-
     # oc1 = nodelib.toColor(out1)
     # oc2 = nodelib.toColor(out2)
     # oc3 = nodelib.toColor(out3)
@@ -607,7 +609,7 @@ def testFile(data):
     # list2.insert(0,blend1)
     # out2 = 255*(1-out1>int(255/8*4-10))
 
-    outList = imglib.mergeArray(tuple([dataMgr.data,oc0,oc1,oc2,oc3]),axis=1, interval=20)
+    outList = imglib.mergeArray((data,out1),axis=1, interval=20)
     # out2 = imglib.mergeArray(tuple(list2),axis=1, interval=20)
 
     # out = imglib.mergeArray((out1,out2),0,20)

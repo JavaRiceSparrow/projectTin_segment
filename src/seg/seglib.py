@@ -16,14 +16,14 @@ def getEdge(data):
         glist.append(matrixConvolution(data[:,:,i], filter, axis_along=0))
         glist.append(matrixConvolution(data[:,:,i], filter, axis_along=1))
 
-    gsquare = 0
+    gsquare = np.square(glist.pop())
     while glist:
         gsquare = gsquare + np.square(glist.pop())
 
     return np.sqrt(gsquare)
 
 
-def getRidge(data, sigma, dx, length):
+def getRidge(data, sigma=0.5, dx=0.5, length=6):
     if len(data.shape) == 2:
         print("Wrong!")
         return None
@@ -33,14 +33,14 @@ def getRidge(data, sigma, dx, length):
     x_2 = np.square(x_axis)
     hx = (4*sigma**2 * x_2-2*sigma) * np.exp(-sigma*x_2)
     hx -= np.mean(hx)
-    if np.mean(hx)!=0:
-        print("W :" , np.mean(hx))
+    # if np.mean(hx)!=0:
+    #     print("W :" , np.mean(hx))
 
     for i in range(3):
-        glist.append(matrixConvolution(data[:,:,i], filter, axis_along=0))
-        glist.append(matrixConvolution(data[:,:,i], filter, axis_along=1))
-
-    gsquare = 0
+        glist.append(matrixConvolution(data[:,:,i], hx, axis_along=0))
+        glist.append(matrixConvolution(data[:,:,i], hx, axis_along=1))
+    # print(glist)
+    gsquare = np.square(glist.pop())
     while glist:
         gsquare = gsquare + np.square(glist.pop())
 
@@ -60,7 +60,7 @@ def matrixConvolution(data, filter, axis_along = 0):
     # if type(filter) != np.ndarray:
     #     return None
     if len(filter.shape) != 1:
-        # print("Data size wrong!")
+        print("Filter size wrong! :", filter.shape)
         return None
     fsize = int(filter.shape[0])
     cdata = np.zeros((fsize,data.shape[0],data.shape[1]))
