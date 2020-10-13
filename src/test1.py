@@ -26,23 +26,32 @@ import numpy as np
 
 # print(sorted(posList))
 # print(posList)
-import matplotlib.pyplot as plt
-i = 2
-dx = 0.5/i
-length = 6/dx
-sigma = float(sys.argv[1])
-x_axis = (np.arange((length*2+1))-length)*dx
-x_2 = np.square(x_axis)
-hx = (4*sigma**2 * x_2-2*sigma) * np.exp(-sigma*x_2)
-# print("W :" , np.mean(hx))
-hx -= np.mean(hx)
+# import matplotlib.pyplot as plt
+# i = 2
+# dx = 0.5/i
+# length = 6/dx
+# sigma = float(sys.argv[1])
+# x_axis = (np.arange((length*2+1))-length)*dx
+# x_2 = np.square(x_axis)
+# hx = (4*sigma**2 * x_2-2*sigma) * np.exp(-sigma*x_2)
+# # print("W :" , np.mean(hx))
 # hx -= np.mean(hx)
-# if np.mean(hx)!=0:
-#     print("W :" , np.mean(hx))
-# x_axis = np.arange((length*2+1))-length
-# print(hx)
-plt.plot(x_axis,hx)
-plt.show()
+# # hx -= np.mean(hx)
+# # if np.mean(hx)!=0:
+# #     print("W :" , np.mean(hx))
+# # x_axis = np.arange((length*2+1))-length
+# # print(hx)
+# plt.plot(x_axis,hx)
+# plt.show()
+
+color1 = np.array([[[115,82,68],[194,150,130],[98,122,157]]])
+color2 = imglib.RGBtoLAB(color1)
+print(color2)
+for i in color1:
+    for j in i:
+        print(imglib.soleRGBtoLAB(j) )
+
+
 # array1 = np.array([[1,1,1,2,3,3,3,3],[1,2,2,2,2,3,3,3],[2,2,2,2,2,4,4,3],\
 #     [2,2,2,2,2,2,4,3],[2,2,5,5,5,5,5,5],[6,2,5,5,7,7,7,7]])
 

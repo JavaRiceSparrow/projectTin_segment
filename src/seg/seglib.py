@@ -23,7 +23,7 @@ def getEdge(data):
     return np.sqrt(gsquare)
 
 
-def getRidge(data, sigma=0.5, dx=0.5, length=6):
+def getRidge(data, sigma=0.4, dx=0.5, length=6):
     if len(data.shape) == 2:
         print("Wrong!")
         return None

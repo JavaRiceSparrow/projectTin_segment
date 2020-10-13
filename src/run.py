@@ -34,7 +34,7 @@ else:
 import time
 
 inpathHead = "Pic/"
-outpathHead = "output/largeRSeg/3/"
+outpathHead = "output/ranSeg/area/"
 # pathnames = [f for f in os.listdir(in_path) if os.path.isfile(os.path.join(in_path, f))]
 pathnames = list1
 # print(onlyfiles)
@@ -65,7 +65,7 @@ def testFile(path_name):
 def processFile(path_name):
     in_path = inpathHead + path_name
     # out_path = outpathHead + path_name
-    out_path = outpathHead + path_name + "_l1.gif"
+    out_path = outpathHead + path_name + "_l3.gif"
     
     # lamda = 2
     data = imglib.getImg(in_path, to_3d=True)
@@ -89,6 +89,13 @@ def main(argv=None):
                 for i in range(2,argLen):
                     n = int(argv[i] )
                     print("\"" + pathnames[n] + "\"")
+            
+            return 0
+        if argv[1] == '-find':
+            # if argLen >= 3:
+            #     for i in range(2,argLen):
+            #         n = int(argv[i] )
+            #         print("\"" + pathnames[n] + "\"")
             
             return 0
         if argv[1] == '-test':

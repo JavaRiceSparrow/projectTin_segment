@@ -17,6 +17,9 @@ from PIL import Image
 #       X
 
 def arrToImg(data, inv = False):
+    if type(data) != np.ndarray:
+        print("Data type wrong!")
+        return None
     if data.dtype == bool:
         ndata = 255*(data.astype('uint8'))
 
@@ -41,18 +44,28 @@ def img3dTo2d(data):
 def mergeArray(datas, axis=1, interval = 0):
     '''
     '''
+    # if datas 
     data1 = datas[0]
     # print(data1.shape)
     # if len(data1.shape) !=3:
     #     return 0
+    b_dim2 = False
+    if len(data1.shape) == 2:
+        b_dim2 = True
 
     tdatas = tuple(datas)
+    list1 = []
     if interval != 0:
-        list1 = []
-        if axis == 0:
-            itv = np.zeros((interval,data1.shape[1],3))
-        elif axis == 1:
-            itv = np.zeros((data1.shape[0],interval,3))
+        if not b_dim2:
+            if axis == 0:
+                itv = np.zeros((interval,data1.shape[1],3))
+            elif axis == 1:
+                itv = np.zeros((data1.shape[0],interval,3))
+        else:
+            if axis == 0:
+                itv = np.zeros((interval,data1.shape[1]))
+            elif axis == 1:
+                itv = np.zeros((data1.shape[0],interval))
     for data in tdatas:
         list1.append(arrToImg(data))
         if interval != 0:
@@ -62,6 +75,38 @@ def mergeArray(datas, axis=1, interval = 0):
     tdatas = tuple(list1)
 
     return np.concatenate((tdatas), axis = axis)
+def addArrayCol(data, axis=1, interval = 0):
+    '''
+    '''
+    if interval==0:
+        return data
+    # if datas 
+    data1 = data
+    # print(data1.shape)
+    # if len(data1.shape) !=3:
+    #     return 0
+    b_dim2 = False
+    if len(data1.shape) == 2:
+        b_dim2 = True
+
+    # tdatas = tuple(datas)
+    # list1 = []
+    
+    if not b_dim2:
+        if axis == 0:
+            itv = np.zeros((interval,data1.shape[1],3))
+        elif axis == 1:
+            itv = np.zeros((data1.shape[0],interval,3))
+    else:
+        if axis == 0:
+            itv = np.zeros((interval,data1.shape[1]))
+        elif axis == 1:
+            itv = np.zeros((data1.shape[0],interval))
+    
+    
+    tdatas = (data,itv)
+
+    return np.concatenate(tdatas, axis = axis)
 
 def addWordDown(data, words):
     # , size=20, reign = 30
@@ -297,33 +342,120 @@ def RGBtoYCbCr(rgbArray):
     outArray[:,:,2] = 0.5*r + -0.419*g + -0.081*b
 
     return outArray
+def soleRGBtoLAB(rgbArray):
+    # if len(rgbArray.shape) !=3:
+    #     return None
 
+    r,g,b = rgbArray[0], rgbArray[1], rgbArray[2]
+    # transMatrix = np.array()
+    outArray = np.zeros([3])
+
+    # R = r
+    # G = g
+    # B = b
+    # x/12.92
+    def gamma(data):
+        if data>0.04045:
+        # out = np.zeros(data.shape)
+        # dfv = np.logical_not(df)
+            return ((data+0.055)/1.055)**2.4
+        else:
+            return data/12.92
+        # return out
+
+
+    R = gamma(r/255.0)
+    G = gamma(g/255.0)
+    B = gamma(b/255.0)
+    Xn = 95.047
+    Yn = 100.0
+    Zn = 108.883
+
+    X = (R * 0.4124 + G * 0.3576 + B * 0.1805)/Xn 
+    Y = (R * 0.2126 + G * 0.7152 + B * 0.0722)/Yn
+    Z = (R * 0.0193 + G * 0.1192 + B * 0.9505)/Zn
+
+
+    p6_29_3, p29_6_2 = (6.0/29.0)**3 , (29.0/6.0)**2
+    p1_3 = 1.0/3.0
+    p4_29 = 4.0/29.0
+    
+
+    def f_t(data):
+        if data>p6_29_3:
+            return np.power(data,p1_3)
+        else:
+            return  p1_3*p29_6_2*data+p4_29
+        
+
+    F_X = f_t(X)
+    F_Y = f_t(Y)
+    F_Z = f_t(Z)
+
+    L = 116.0 * F_Y - 16.0
+    if L<0:
+        L = 0
+    outArray[0] = L 
+    outArray[1] = 500.0 * (F_X - F_Y)
+    outArray[2] = 200.0 * (F_Y - F_Z)
+
+    return outArray
 def RGBtoLAB(rgbArray):
     if len(rgbArray.shape) !=3:
         return None
 
     r,g,b = rgbArray[:,:,0], rgbArray[:,:,1], rgbArray[:,:,2]
     # transMatrix = np.array()
-    outArray = np.empty_like(rgbArray).astype(float)
+    outArray = np.zeros(rgbArray.shape)
 
-    R = r/255.0
-    G = g/255.0
-    B = b/255.0
+    # R = r
+    # G = g
+    # B = b
     # x/12.92
-    Rf = R[R>0.04045]
-    R[Rf] = ((R[Rf]+0.055)/1.055)**2.4
-    R[not Rf] = R[not Rf]/12.92 #np.inv(
-    Gf = G[G>0.04045]
-    G[Gf] = ((G[Gf]+0.055)/1.055)**2.4
-    G[not Gf] = G[not Gf]/12.92 
-    Bf = B[B>0.04045]   
-    B[Bf] = ((B[Bf]+0.055)/1.055)**2.4
-    B[not Bf] = B[not Bf]/12.92 
+    def gamma(data):
+        df = data>0.04045
+        out = np.zeros(data.shape)
+        dfv = np.logical_not(df)
+        out[df] = ((data[df]+0.055)/1.055)**2.4
+        out[dfv] = data[dfv]/12.92
+        return out
+
+
+    R = gamma(r/255.0)
+    G = gamma(g/255.0)
+    B = gamma(b/255.0)
+    Xn = 95.047
+    Yn = 100.0
+    Zn = 108.883
+
+    X = (R * 0.4124 + G * 0.3576 + B * 0.1805)/Xn 
+    Y = (R * 0.2126 + G * 0.7152 + B * 0.0722)/Yn
+    Z = (R * 0.0193 + G * 0.1192 + B * 0.9505)/Zn
+
+
+    p6_29_3, p29_6_2 = (6.0/29.0)**3 , (29.0/6.0)**2
+    p1_3 = 1.0/3.0
+    p4_29 = 4.0/29.0
     
 
-    outArray[:,:,0] = R * 0.4124 + G * 0.3576 + B * 0.1805
-    outArray[:,:,1] = R * 0.2126 + G * 0.7152 + B * 0.0722
-    outArray[:,:,2] = R * 0.0193 + G * 0.1192 + B * 0.9505
+    def f_t(data):
+        df = data>p6_29_3
+        out = np.zeros(data.shape)
+        dfv = np.logical_not(df)
+        out[df] = np.power(data[df],p1_3)
+        out[dfv] =  p1_3*p29_6_2*data[dfv]+p4_29
+        
+        return out
+
+    F_X = f_t(X)
+    F_Y = f_t(Y)
+    F_Z = f_t(Z)
+
+    L = 116.0 * F_Y - 16.0
+    L[L<0] = 0
+    outArray[:,:,0] = L 
+    outArray[:,:,1] = 500.0 * (F_X - F_Y)
+    outArray[:,:,2] = 200.0 * (F_Y - F_Z)
 
     return outArray
 
