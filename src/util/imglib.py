@@ -41,6 +41,15 @@ def img3dTo2d(data):
     return (data[:,:,0] + data[:,:,1]+data[:,:,0])/3
     # .astype('uint8')
 
+def isGray(data):
+    if len(data.shape) != 3:
+        return True
+    sameArr = np.logical_not(np.logical_or(np.equal(data[:,:,0],data[:,:,1]),np.equal(data[:,:,1],data[:,:,2])))
+    if np.sum(sameArr):
+        return False
+    else:
+        return True
+
 def mergeArray(datas, axis=1, interval = 0):
     '''
     '''
@@ -400,18 +409,15 @@ def soleRGBtoLAB(rgbArray):
     outArray[2] = 200.0 * (F_Y - F_Z)
 
     return outArray
-def RGBtoLAB(rgbArray):
+
+
+def RGBtoXYZ(rgbArray):
     if len(rgbArray.shape) !=3:
         return None
 
     r,g,b = rgbArray[:,:,0], rgbArray[:,:,1], rgbArray[:,:,2]
-    # transMatrix = np.array()
     outArray = np.zeros(rgbArray.shape)
 
-    # R = r
-    # G = g
-    # B = b
-    # x/12.92
     def gamma(data):
         df = data>0.04045
         out = np.zeros(data.shape)
@@ -419,25 +425,40 @@ def RGBtoLAB(rgbArray):
         out[df] = ((data[df]+0.055)/1.055)**2.4
         out[dfv] = data[dfv]/12.92
         return out
-
+    # print(r  )
+    # print(r/255.0)
 
     R = gamma(r/255.0)
     G = gamma(g/255.0)
     B = gamma(b/255.0)
+    # print(R)
     Xn = 95.047
     Yn = 100.0
     Zn = 108.883
+    
+    # M = np.array([[0.412453, 0.357580, 0.180423],
+    #           [0.212671, 0.715160, 0.072169],
+    #           [0.019334, 0.119193, 0.950227]])
 
-    X = (R * 0.4124 + G * 0.3576 + B * 0.1805)/Xn 
-    Y = (R * 0.2126 + G * 0.7152 + B * 0.0722)/Yn
-    Z = (R * 0.0193 + G * 0.1192 + B * 0.9505)/Zn
+    X = (R * 0.412453 + G * 0.357580 + B *  0.180423)
+    Y = (R * 0.212671 + G * 0.715160 + B * 0.072169)
+    Z = (R * 0.019334 + G * 0.119193 + B * 0.950227)
+    outArray[:,:,0] = X/Xn
+    outArray[:,:,1] = Y/Yn
+    outArray[:,:,2] = Z/Zn
+    return outArray
 
+def XYZtoLAB(rgbArray):
+    if len(rgbArray.shape) !=3:
+        return None
+
+
+    X,Y,Z = rgbArray[:,:,0], rgbArray[:,:,1], rgbArray[:,:,2]
+    outArray = np.zeros(rgbArray.shape)
 
     p6_29_3, p29_6_2 = (6.0/29.0)**3 , (29.0/6.0)**2
     p1_3 = 1.0/3.0
     p4_29 = 4.0/29.0
-    
-
     def f_t(data):
         df = data>p6_29_3
         out = np.zeros(data.shape)
@@ -458,6 +479,57 @@ def RGBtoLAB(rgbArray):
     outArray[:,:,2] = 200.0 * (F_Y - F_Z)
 
     return outArray
+
+
+M = np.array([[0.412453, 0.357580, 0.180423],
+              [0.212671, 0.715160, 0.072169],
+              [0.019334, 0.119193, 0.950227]])
+
+
+# '''
+def f(im_channel):
+    return np.power(im_channel, 1 / 3) if im_channel > 0.008856 else 7.787 * im_channel + 0.137931
+
+
+
+def __rgb2xyz__(pixel):
+    r, g, b = pixel[0], pixel[1], pixel[2]
+    rgb = np.array([r, g, b])
+    XYZ = np.dot(M, rgb.T)
+    XYZ = XYZ / 255.0
+    return (XYZ[0] / 0.95047, XYZ[1] / 1.0, XYZ[2] / 1.08883)
+
+
+def __xyz2lab__(xyz):
+    F_XYZ = [f(x) for x in xyz]
+    L = 116.0 * F_XYZ[1] - 16.0 if xyz[1] > 0.008856 else 903.3 * xyz[1]
+    a = 500.0 * (F_XYZ[0] - F_XYZ[1])
+    b = 200.0 * (F_XYZ[1] - F_XYZ[2])
+    return (L, a, b)
+
+
+def soleRGB2Lab(pixel):
+    xyz = __rgb2xyz__(pixel)
+    Lab = __xyz2lab__(xyz)
+    return np.array(Lab)
+def RGB2Lab(rgbArray):
+    lab = np.empty_like(rgbArray).astype(float)
+    size = rgbArray.shape
+    for i in range(size[0]):
+        for j in range(size[1]):
+            lab[i,j] = soleRGB2Lab(rgbArray[i,j])
+    # xyz = __rgb2xyz__(pixel)
+    # Lab = __xyz2lab__(xyz)
+    return lab
+#'''
+
+def RGBtoLAB(rgbArray):
+    if len(rgbArray.shape) !=3:
+        return None
+    xyz = RGBtoXYZ(rgbArray)
+    lab = XYZtoLAB(xyz)
+
+    return lab
 
 # x = np.array([[1,0,1], [0,1,1],[0,1,0],[1,0,0]])
 # print(moment(x,1,2))

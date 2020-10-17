@@ -1,10 +1,10 @@
 import numpy as np
-import os, sys
+import sys
 # from array import array
 
-from util import imglib, color, nodelib
+from util import imglib
 # import color
-from seg import randomSeg, segment
+from seg import randomSeg
 # import nodelib
 
 # path_name = ""
@@ -49,7 +49,7 @@ def testFile(path_name):
     
     in_path = inpathHead + path_name
     # out_path = outpathHead + path_name
-    out_path = outpathHead + path_name + "_t1.gif"
+    out_path = outpathHead + path_name + "_t2.gif"
     
     # lamda = 2
     data = imglib.getImg(in_path, to_3d=True)
@@ -65,7 +65,7 @@ def testFile(path_name):
 def processFile(path_name):
     in_path = inpathHead + path_name
     # out_path = outpathHead + path_name
-    out_path = outpathHead + path_name + "_l3.gif"
+    out_path = outpathHead + path_name + "_la2.gif"
     
     # lamda = 2
     data = imglib.getImg(in_path, to_3d=True)
@@ -130,8 +130,7 @@ def main(argv=None):
 
 if __name__ == "__main__":
     sys.exit(main())
-
-# edge = nodelib.getEdge(array1)               
+          
 
 # x = 1
 # for y in range(size_y-1):

@@ -1,7 +1,9 @@
 
 import numpy as np
+from util import imglib, nodelib
 
-DEF_LDATA = False #True
+DEF_LDATA = False 
+DEF_LDATA = True
 
 class RegionMgr(object):
     def __init__(self, size0, size1):
@@ -11,7 +13,7 @@ class RegionMgr(object):
         self.regBoolList = [0]
         self.regNum = 0
         self.regSize = 0
-    '''
+    # '''
     def settleRegion(self):
         # TODO
         return 0
@@ -45,7 +47,7 @@ class RegionMgr(object):
         print(np.min(np.ones(self.size,dtype=bool)==test_b))
         print(np.min(test_a==test_b))
 
-    ''' 
+    # ''' 
     def simpCheck(self):
         if self.regNum>self.regSize:
             return False
@@ -61,8 +63,9 @@ class RegionMgr(object):
             return False
         self.regNum += 1
         self.regSize += 1
+        # print("Add reg ", self.regNum)
         self.regBoolList.append(region)
-        self.regSumList += np.sum(region)
+        self.regSumList.append(np.sum(region))
         if (np.sum(self.IntMatrix[region]) != 0):
             print("\"region.py.RegionMgr.addRegion\": regions might be covered.")
         self.IntMatrix[region] = self.regSize
@@ -72,10 +75,14 @@ class RegionMgr(object):
         
 
     def mergeRegion(self, pos1, pos2):
-        x1,y1 = pos1
-        x2,y2 = pos2
-        reg1 = self.IntMatrix[x1,y1]
-        reg2 = self.IntMatrix[x2,y2]
+        if type(pos1) == int:
+            reg1 = pos1
+            reg2 = pos2
+        else:
+            x1,y1 = pos1
+            x2,y2 = pos2
+            reg1 = self.IntMatrix[x1,y1]
+            reg2 = self.IntMatrix[x2,y2]
         # c1 = self.Ydata[x1,y1]
         # c2 = self.Ydata[x2,y2]
         # print("p1: (",c1[0],',',c1[1],',',c1[2],'), p2:(',c2[0],',',c2[1],',',c2[2],')')
@@ -107,16 +114,17 @@ class DataMgr(object):
     def __init__(self, data):
         self.data = data
         self.Ydata = imglib.RGBtoYCbCr(data)
-        self.Ldata = imglib.RGBtoLAB(data)
-        self.shape = data.shape
-        # self.size = (self.shape[0],self.shape[1])
-        # the int array of region
+        self.Ldata = imglib.RGB2Lab(data)
+        self.shape = data.shape[0:2]
+        
+        self.grad = nodelib.getGradient(grad_func)
+
         self.region = RegionMgr(self.shape[0],self.shape[1])
-        # self.region.IntMatrix = np.zeros([self.size[0],self.size[1]],int)
-        # self.regSumList = []
-        # self.regBoolList = []
-        # self.regNum = 0
-        # self.regSize = 0
+
+        if DEF_LDATA:
+            self.Cdata = self.Ldata
+        else:
+            self.Cdata = self.Ydata
 
 
         
@@ -131,6 +139,9 @@ class DataMgr(object):
         return self.data.copy()
     # def set_region(self, region):
     #     self.region.IntMatrix = region
+    def region_copy(self):
+        return self.region.IntMatrix.copy()
+    
 
     def getNodeIdx(self,pos):
         x,y = pos
@@ -138,6 +149,17 @@ class DataMgr(object):
     # def getNodeIdx(self,x,y):
     #     return self.region.IntMatrix[x,y]
 
+    def setMeanGradArr(self,pos):
+        self.meanGrad = np.empty_like(self.grad)
+        for i in range(1,self.size+1):
+            
+            if self.region.regSumList[i] == 0:
+                continue
+            reg = self.region.regBoolList[i]
+            self.meanGrad[reg] = np.mean(self.grad[reg])
+        # return self.region.IntMatrix[x,y]
+
+    
     
 
             

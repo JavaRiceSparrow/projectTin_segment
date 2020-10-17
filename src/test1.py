@@ -45,11 +45,17 @@ import numpy as np
 # plt.show()
 
 color1 = np.array([[[115,82,68],[194,150,130],[98,122,157]]])
-color2 = imglib.RGBtoLAB(color1)
+
+color2 = imglib.RGB2Lab(color1)
+# cx = imglib.RGBtoXYZ(color1)
 print(color2)
-for i in color1:
-    for j in i:
-        print(imglib.soleRGBtoLAB(j) )
+color2 = imglib.RGBtoLAB(color1)
+# cx = imglib.RGBtoXYZ(color1)
+print(color2)
+# print(color2)
+# for i in color1:
+#     for j in i:
+#         print(imglib.soleRGBtoLAB(j) )
 
 
 # array1 = np.array([[1,1,1,2,3,3,3,3],[1,2,2,2,2,3,3,3],[2,2,2,2,2,4,4,3],\

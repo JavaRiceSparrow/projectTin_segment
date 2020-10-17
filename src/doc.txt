@@ -20,6 +20,8 @@
 
 132 planets.bmp
 
+64 FreshFruitVegetablegray.jpg
+
 
  ----- color, comx ----- 
 
@@ -35,5 +37,6 @@
 
 101  bell-peppers-1420709__180.jpg
 
+63 FreshFruitVegetable.jpg
 
 133 planets.bmp
