@@ -23,7 +23,7 @@ def arrToImg(data, inv = False):
     if data.dtype == bool:
         ndata = 255*(data.astype('uint8'))
 
-    elif data.dtype == 'float64' and np.max(data) == 1:
+    elif data.dtype == 'float64' and np.max(data) <= 1:
         ndata = np.around(255*data).astype('uint8')
     else:
         ndata = data.copy().astype('uint8')
@@ -44,6 +44,8 @@ def img3dTo2d(data):
 def isGray(data):
     if len(data.shape) != 3:
         return True
+    # for i in range(100):
+    #     x = 
     sameArr = np.logical_not(np.logical_or(np.equal(data[:,:,0],data[:,:,1]),np.equal(data[:,:,1],data[:,:,2])))
     if np.sum(sameArr):
         return False
@@ -199,6 +201,10 @@ def getImg(path, Blight = False, Black = False, to_3d = False):
     # edge = [data[1,:], data[1:-1:]]
 
 def saveImg(data, path):
+    if type(data) == type(0):
+        return
+    if type(data) == type(0):
+        return
     if type(data) == Image.Image:
         data.save(path)
         return

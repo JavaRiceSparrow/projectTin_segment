@@ -1,10 +1,24 @@
 import numpy as np
 import sys
+import resource
+import psutil
+
+p = psutil.Process()
+
+def set_max_runtime(seconds):
+    # Install the signal handler and set a resource limit
+    soft, hard = resource.getrlimit(resource.RLIMIT_CPU)
+    resource.setrlimit(resource.RLIMIT_CPU, (seconds, hard))
+    signal.signal(signal.SIGXCPU, time_exceeded)
+def limit_memory(maxsize):
+    soft, hard = resource.getrlimit(resource.RLIMIT_AS)
+    resource.setrlimit(resource.RLIMIT_AS, (maxsize, hard))
+
 # from array import array
 
 from util import imglib
 # import color
-from seg import randomSeg
+from seg import RSrunner
 # import nodelib
 
 # path_name = ""
@@ -35,6 +49,8 @@ import time
 
 inpathHead = "Pic/"
 outpathHead = "output/ranSeg/area/"
+runhead = "r3_"
+testhead = "t3_"
 # pathnames = [f for f in os.listdir(in_path) if os.path.isfile(os.path.join(in_path, f))]
 pathnames = list1
 # print(onlyfiles)
@@ -49,7 +65,7 @@ def testFile(path_name):
     
     in_path = inpathHead + path_name
     # out_path = outpathHead + path_name
-    out_path = outpathHead + path_name + "_t2.gif"
+    out_path = outpathHead + testhead + path_name + ".gif"
     
     # lamda = 2
     data = imglib.getImg(in_path, to_3d=True)
@@ -58,14 +74,14 @@ def testFile(path_name):
         print("\""+in_path+"\" error!")
         return
     print("Image "+in_path+" ...")
-    out = randomSeg.testFile(data)
+    out = RSrunner.testFile(data)
     print("Save as "+out_path+" ...")
     imglib.saveImg(out,out_path)
     
 def processFile(path_name):
     in_path = inpathHead + path_name
     # out_path = outpathHead + path_name
-    out_path = outpathHead + path_name + "_la2.gif"
+    out_path = outpathHead + runhead + path_name + ".gif"
     
     # lamda = 2
     data = imglib.getImg(in_path, to_3d=True)
@@ -74,12 +90,13 @@ def processFile(path_name):
         print("\""+in_path+"\" error!")
         return
     print("Image "+in_path+" ...")
-    out = randomSeg.processFile(data)
+    out = RSrunner.processFile(data)
     print("Save as "+out_path+" ...")
     imglib.saveImg(out,out_path)
     
 # '''
 def main(argv=None):
+    limit_memory(1024*1024*256)
     if argv is None:
         argv = sys.argv
     argLen = len(argv)
@@ -131,36 +148,7 @@ def main(argv=None):
 if __name__ == "__main__":
     sys.exit(main())
           
-
-# x = 1
-# for y in range(size_y-1):
-#     if diff_right[x,y] <= 25:
-#         seg_array[x,y+1] = seg_array[x,y]
-#     else:
-#         seg_array[x,y+1] = len(crs_arr)
-#         crs_arr.append(seg_idx)
-#         # crs_idx += 1
-#         seg_idx += 1
-    
-# for x in range(1,size_x):
-#     for y in range(size_y):
-#         if diff_down[x-1,y] <= 25:
-#             seg_array[x,y] = seg_array[x-1,y]
-
-#     for y in range(size_y-1):
-#         if diff_right[x,y] <= 25:
-#             if seg_array[x,y+1] == 0:
-#                 seg_array[x,y+1] = seg_array[x,y]
-#             else: 
-#                 n1,n2 = seg_array[x,y+1], seg_array[x,y]
-#                 if crs_arr[n1] != crs_arr[n2]:
-#                     crs_arr[n1] = crs_arr[n2]
-#         elif seg_array[x,y+1]:
-#             seg_array[x,y+1] = len(crs_arr)
-#             crs_arr.append(seg_idx)
-#             # crs_idx += 1
-#             seg_idx += 1
-
+          
 
 
 

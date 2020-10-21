@@ -5,6 +5,32 @@ from util import imglib, nodelib
 DEF_LDATA = False 
 DEF_LDATA = True
 
+class dataParam(object):
+    '''
+    (p_seg_color,p_seg_dist,p_cha_wc1,p_cha_wc23,p_cha_we,p_cha_wr,p_cha_thre,p_laMge_bottom,p_laMge_top)
+    p_seg_color : gain of cb&cr
+    p_seg_dist : gain of dist
+    p_cha_wc1 : gain of cy (cha)
+    p_cha_wc23 : gain of cb&cr (cha)( = p_cha_wc1*p_seg_color )
+    p_cha_we : weight of edge
+    p_cha_wr : weight of ridge
+    p_cha_thre : 25
+    p_laMge_bottom : little area merge down
+    p_laMge_top : little area merge up
+    '''
+    def __init__(self):
+        self.p_seg_color = 0
+        self.p_seg_dist =0
+        self.p_cha_wc1  =0
+        self.p_cha_wc23  = self.p_cha_wc1*self.p_seg_color 
+        self.p_cha_we =0
+        self.p_cha_wr =0
+        self.p_cha_thre  =0
+        self.p_laMge_bottom  =0
+        self.p_laMge_top  =0
+        self.p_gd_w = 0
+
+
 class RegionMgr(object):
     def __init__(self, size0, size1):
         self.shape = (size0, size1)
@@ -87,7 +113,7 @@ class RegionMgr(object):
         # c2 = self.Ydata[x2,y2]
         # print("p1: (",c1[0],',',c1[1],',',c1[2],'), p2:(',c2[0],',',c2[1],',',c2[2],')')
         if reg1 == reg2:
-            return
+            return False
         # TODO
         if self.regSumList[reg1]< self.regSumList[reg2]:
             self.IntMatrix[self.regBoolList[reg1]] = reg2
@@ -105,7 +131,46 @@ class RegionMgr(object):
             self.regSumList[reg2] = 0
             # nodelib.mergeRegionMgr(self.region, x2,y2,reg1)
         self.regNum -= 1
-        return
+        return True
+
+    def vertifyList(self):
+        count = 0
+        su = True
+        for i in range(1,self.regSize+1):
+            if self.regSumList[i]==0:
+                continue
+            count += 1
+            if self.regBoolList[i].dtype != bool:
+                su = False
+            if np.sum(self.regBoolList[i]) != self.regSumList[i]:
+                self.regSumList[i] = np.sum(self.regBoolList[i])
+                su = False
+        if count != self.regNum:
+            su = False
+
+        return su
+    def vertifyRegion(self):
+        count = 0
+        sum1 = self.shape[0]*self.shape[1]
+        su = True
+        reg = np.zeros(self.shape,dtype=bool)
+        for i in range(1,self.regSize+1):
+            if self.regSumList[i]==0:
+                continue
+            count += 1
+            if np.sum(np.logical_and(reg,self.regBoolList[i]))!=0:
+                su = False
+                return False
+                break
+            reg[self.regBoolList[i]] = True
+            
+        if count != self.regNum:
+            su = False
+        if np.sum(reg) != sum1:
+            return False
+
+        return su
+
         
 class DataMgr(object):
     
@@ -117,7 +182,8 @@ class DataMgr(object):
         self.Ldata = imglib.RGB2Lab(data)
         self.shape = data.shape[0:2]
         
-        self.grad = nodelib.getGradient(grad_func)
+        self.grad = 0
+        self.para = dataParam
 
         self.region = RegionMgr(self.shape[0],self.shape[1])
 
@@ -127,7 +193,7 @@ class DataMgr(object):
             self.Cdata = self.Ydata
 
 
-        
+    
     # def getsize(self):
     #     return self.size    
     def getshape(self):
@@ -149,9 +215,22 @@ class DataMgr(object):
     # def getNodeIdx(self,x,y):
     #     return self.region.IntMatrix[x,y]
 
-    def setMeanGradArr(self,pos):
-        self.meanGrad = np.empty_like(self.grad)
-        for i in range(1,self.size+1):
+    def setGrad(self, p_seg_color=-1):
+        if p_seg_color==-1:
+            p_seg_color=self.para[0]
+
+        # AdjData = dataMgr.Cdata
+        cy_arr = nodelib.getGradient(self.Cdata[:,:,0])
+        cb_arr = nodelib.getGradient(self.Cdata[:,:,1])
+        cr_arr = nodelib.getGradient(self.Cdata[:,:,2])
+        # grad_func = cy_arr + np.sqrt(p_seg_color)*(cb_arr+cr_arr)
+        # nodelib.getGradient(cy_arr)
+        self.grad = np.abs(cy_arr) + np.sqrt(p_seg_color)*(np.abs(cb_arr)+np.abs(cr_arr))
+    def setMeanGradArr(self):
+        if not self.region.vertifyRegion():
+            print("?_?_?_?")
+        self.meanGrad = np.zeros(self.shape,dtype = float)
+        for i in range(1,self.region.regSize+1):
             
             if self.region.regSumList[i] == 0:
                 continue

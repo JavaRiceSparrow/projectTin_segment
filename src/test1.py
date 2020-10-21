@@ -3,46 +3,7 @@ from util import nodelib, imglib
 from seg import seglib
 
 import numpy as np
-# import segment
-# from util import imglib
 
-# array0 = imglib.getImg("Pic/lena_gray_label.png", to_3d=True)
-# print(type(array0))
-# array0 = (np.random.rand(5,5)*20).astype(int)
-
-# if i and j:
-#     i+=1
-
-# print(i)
-# import random
-# size = (15,20)
-# posList = []
-# num = 10
-# for i in range(num):
-#     ox,oy = random.randint(0,size[0]-1),random.randint(0,size[1]-1)
-    
-
-#     posList.append((ox,oy))
-
-# print(sorted(posList))
-# print(posList)
-# import matplotlib.pyplot as plt
-# i = 2
-# dx = 0.5/i
-# length = 6/dx
-# sigma = float(sys.argv[1])
-# x_axis = (np.arange((length*2+1))-length)*dx
-# x_2 = np.square(x_axis)
-# hx = (4*sigma**2 * x_2-2*sigma) * np.exp(-sigma*x_2)
-# # print("W :" , np.mean(hx))
-# hx -= np.mean(hx)
-# # hx -= np.mean(hx)
-# # if np.mean(hx)!=0:
-# #     print("W :" , np.mean(hx))
-# # x_axis = np.arange((length*2+1))-length
-# # print(hx)
-# plt.plot(x_axis,hx)
-# plt.show()
 
 color1 = np.array([[[115,82,68],[194,150,130],[98,122,157]]])
 

@@ -40,3 +40,9 @@
 63 FreshFruitVegetable.jpg
 
 133 planets.bmp
+
+
+python src/run.py 114 103 101 68 133 63
+python src/run.py -test 114 103 101 68 133 63
+
+python src/test1.py
