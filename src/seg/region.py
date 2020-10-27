@@ -19,16 +19,24 @@ class dataParam(object):
     p_laMge_top : little area merge up
     '''
     def __init__(self):
-        self.p_seg_color = 0
-        self.p_seg_dist =0
-        self.p_cha_wc1  =0
-        self.p_cha_wc23  = self.p_cha_wc1*self.p_seg_color 
-        self.p_cha_we =0
-        self.p_cha_wr =0
-        self.p_cha_thre  =0
-        self.p_laMge_bottom  =0
-        self.p_laMge_top  =0
-        self.p_gd_w = 0
+        self.p_seg_color    = 4
+        self.p_seg_dist     = 0.5
+        self.p_cha_wc1      = 1
+        self.p_cha_wc23     = self.p_cha_wc1*self.p_seg_color 
+        self.p_cha_we       = 0.8
+        self.p_cha_wr       = 1
+        self.p_cha_thre     = 15
+        self.p_laMge_bottom = 0
+        self.p_laMge_top    = 0
+        self.p_gd_we        = 0
+        self.p_gd_wr        = 0
+        self.p_gd_pow       = 0
+        self.pa.p_gd_thre   = 0
+
+        # self.p_seg = {'w_color' : 4,'w_dist' : 0.5}
+        # self.p_chara = {'w_c1' : 1, 'w_c23' : 1*4, 'w_edge' : 0.8, 'w_ridge' : 1, 'threhold' : 15}
+        # self.p_mergeArea = {'bottom' : 0, 'top':0}
+        # self.p_grad = {'weight': 0,"pow" :0, 'threhold' : 0}
 
 
 class RegionMgr(object):

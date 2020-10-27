@@ -209,6 +209,13 @@ def getGradient(data, unit_len = 1, b_return_vector_form = False):
     # print(grad.shape)
     return grad
 
+def getReduceSize(data):
+    data_f = data
+    d_d = (data_f[0:-1]+data_f[1:])/2.0
+    d_r = (data_f[:,0:-1]+data_f[:,1:])/2.0
+    return d_d,d_r
+
+
 def changeRegionNum(data,x,y,n, visited = None, n0 = -1):
     b_v = False
     if type(visited) != type(None):

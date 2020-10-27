@@ -230,6 +230,36 @@ def getChara2(data,para):
     diff_r = cdif_r + we*covEdge[:,:-1] + wr*covRidge[:,:-1]
     return diff_d,diff_r
 
+
+def getChara3(dataMgr):
+    dataMgr.setMeanGradArr()
+    
+    wc1 = dataMgr.para.p_cha_wc1
+    wc23 = dataMgr.para.p_cha_wc23
+    we = dataMgr.para.p_cha_we
+    wr = dataMgr.para.p_cha_wr
+    alpha = dataMgr.para.p_gd_pow
+    g_we = dataMgr.para.p_gd_we
+    g_wr = dataMgr.para.p_gd_wr
+    data = dataMgr.Cdata
+
+    grad_d , grad_r = nodelib.getReduceSize(dataMgr.meanGrad)
+
+
+    cy_d = data[:-1,:,0]-data[1:,:,0]
+    cy_r = data[:,:-1,0]-data[:,1:,0]
+    cb_d = data[:-1,:,1]-data[1:,:,1]
+    cb_r = data[:,:-1,1]-data[:,1:,1]
+    cr_d = data[:-1,:,2]-data[1:,:,2]
+    cr_r = data[:,:-1,2]-data[:,1:,2]
+    cdif_d = wc1*np.abs(cy_d)+wc23*np.abs(cb_d)+wc23*np.abs(cr_d)
+    cdif_r = wc1*np.abs(cy_r)+wc23*np.abs(cb_r)+wc23*np.abs(cr_r)
+    covEdge = seglib.getEdge(data)
+    covRidge = seglib.getRidge(data)
+    diff_d = cdif_d + (we*g_we*covEdge[:-1] + wr*g_wr*covRidge[:-1]) / np.power(grad_d, alpha)
+    diff_r = cdif_r + (we*g_we*covEdge[:,:-1] + wr*g_wr*covRidge[:,:-1]) / np.power(grad_r, alpha)
+    return diff_d,diff_r
+
 # The overwhelming simple merge way
 def mergeRegionAdj(dataMgr, threshold):
     data = dataMgr.Cdata
@@ -335,6 +365,54 @@ def mergeRegionBy2(dataMgr):
     
     diff_d,diff_r = getChara2(data,dataMgr.para)
     mergeRegion(dataMgr,diff_d,diff_r)
+
+
+def mergeRegion_AG_3(dataMgr):
+    '''
+    By area and region param
+    Using chara3 (which consider meanGrad)
+    '''
+
+    def areaChara(area,p_laMge_bottom,p_laMge_top):
+        if area<p_laMge_bottom:
+            return 1
+        if area>p_laMge_top:
+            return 0
+        return (area-p_laMge_bottom)/(p_laMge_top-p_laMge_bottom)
+
+
+    p_laMge_bottom = dataMgr.para.p_laMge_bottom
+    p_laMge_top = dataMgr.para.p_laMge_top
+    p_gd_thre = dataMgr.para.p_gd_thre
+
+    data = dataMgr.Cdata
+    size = dataMgr.shape
+    chara_d,chara_r = getChara3(dataMgr)
+    regions = dataMgr.region.IntMatrix
+    regMgr = dataMgr.region
+    difReg_d = regions[:-1,:] != regions[1:,:]
+    difReg_r = regions[:,:-1] != regions[:,1:]
+    l_a = p_gd_thre
+
+    for x in range(size[0]-1):
+        for y in range(size[1]):
+            if difReg_d[x,y] :
+                i1,i2 = dataMgr.getNodeIdx((x+1,y)),dataMgr.getNodeIdx((x,y))
+                area = min(regMgr.regSumList[i1],regMgr.regSumList[i2])
+                if area==0:
+                    print("randomSeg.mergeRegionContainArea: area=0")
+
+                if chara_d[x,y]-l_a*areaChara(area,p_laMge_bottom,p_laMge_top)<=p_gd_thre:
+                    regMgr.mergeRegion((x+1,y),(x,y))
+
+    for x in range(size[0]):
+        for y in range(size[1]-1):
+            if difReg_r[x,y]:
+                i1,i2 = dataMgr.getNodeIdx((x,y+1)),dataMgr.getNodeIdx((x,y))
+                area = min(regMgr.regSumList[i1],regMgr.regSumList[i2])
+                if chara_r[x,y]-l_a*areaChara(area,p_laMge_bottom,p_laMge_top)<=p_gd_thre:
+                    regMgr.mergeRegion((x,y+1),(x,y))
+                    
 
 
 def meanmergeRegionAdj(dataMgr, threshold):

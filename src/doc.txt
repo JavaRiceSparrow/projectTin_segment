@@ -6,6 +6,8 @@
 4: 10.gif, black,  fighter
 5: 11.gif, black,  bike&wall
 
+122: lena_gray.bmp
+
 
  ----- black, simp ----- 
 
@@ -17,11 +19,14 @@
 
 
 114: flag2.jpg
+116: fruits1.bmp
 
 132 planets.bmp
 
 64 FreshFruitVegetablegray.jpg
 
+
+151 海灘gray.jpg
 
  ----- color, comx ----- 
 
@@ -42,7 +47,7 @@
 133 planets.bmp
 
 
-python src/run.py 114 103 101 68 133 63
+python src/run.py 114 116 103 101 68 133 63
 python src/run.py -test 114 103 101 68 133 63
 
 python src/test1.py

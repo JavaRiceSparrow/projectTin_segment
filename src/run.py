@@ -1,9 +1,9 @@
 import numpy as np
 import sys
 import resource
-import psutil
+# import psutil
 
-p = psutil.Process()
+# p = psutil.Process()
 
 def set_max_runtime(seconds):
     # Install the signal handler and set a resource limit
@@ -96,7 +96,7 @@ def processFile(path_name):
     
 # '''
 def main(argv=None):
-    limit_memory(1024*1024*256)
+    limit_memory(1024*1024*1024*2)
     if argv is None:
         argv = sys.argv
     argLen = len(argv)
@@ -105,7 +105,10 @@ def main(argv=None):
             if argLen >= 3:
                 for i in range(2,argLen):
                     n = int(argv[i] )
-                    print("\"" + pathnames[n] + "\"")
+                    if n>=len(pathnames):
+                        print("Out of range ",len(pathnames)," !")
+                    else:
+                        print("\"" + pathnames[n] + "\"")
             
             return 0
         if argv[1] == '-find':
@@ -119,7 +122,10 @@ def main(argv=None):
             if argLen >= 3:
                 for i in range(2,argLen):
                     n = int(argv[i] )
-                    path_name = pathnames[n]
+                    if n>=len(pathnames):
+                        print("Out of range ",len(pathnames)," !")
+                    else:
+                        path_name = pathnames[n]
                     testFile(path_name)
             return 0
         
@@ -136,7 +142,10 @@ def main(argv=None):
             if argLen >= 2:
                 for i in range(1,argLen):
                     n = int(argv[i] )
-                    path_name = pathnames[n]
+                    if n>=len(pathnames):
+                        print("Out of range ",len(pathnames)," !")
+                    else:
+                        path_name = pathnames[n]
                     processFile(path_name)
             return 0
 
