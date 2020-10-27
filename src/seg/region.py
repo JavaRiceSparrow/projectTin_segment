@@ -5,6 +5,9 @@ from util import imglib, nodelib
 DEF_LDATA = False 
 DEF_LDATA = True
 
+
+
+
 class dataParam(object):
     '''
     (p_seg_color,p_seg_dist,p_cha_wc1,p_cha_wc23,p_cha_we,p_cha_wr,p_cha_thre,p_laMge_bottom,p_laMge_top)
@@ -179,6 +182,30 @@ class RegionMgr(object):
 
         return su
 
+    def mergeLittleReg(self, idx,threhold):
+        reg1 = self.regBoolList[idx]
+        def getStartNode(region):
+            size = region.shape
+            for i in range(size[0]):
+                for j in range(size[1]):
+                    if region[i,j]:
+                        return (i,j)
+        def getEndNode(region):
+            size = region.shape
+            for j in range(size[1]-1,-1,-1):
+                for i in range(size[0]-1,-1,-1):
+                    if region[i,j]:
+                        return (i,j)
+        x,y = getStartNode(reg1)
+        if x!=0 :
+            self.mergeRegion((x,y),(x-1,y))
+        elif y!=0:
+            self.mergeRegion((x,y),(x,y-1))
+        else:
+            x,y = getEndNode(reg1)
+            self.mergeRegion((x,y),(x,y+1))
+
+            
         
 class DataMgr(object):
     

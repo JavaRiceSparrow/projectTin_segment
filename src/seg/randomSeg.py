@@ -179,37 +179,51 @@ def getRegDFS(region,node):
 
     return reg2
 
-# def getDFSRegions(region):
+def getDFSRegions(region):
 
-#     r1 = np.copy(region)
-#     p_seg_color = []
-#     while(np.max(r1) != 0):
-#         node = getStartNode(r1)
-#         reg_new = getRegDFS(r1,node)
-#         p_seg_color.append(reg_new)
-#         r1[reg_new] = False
-#     return p_seg_color
+    r1 = np.copy(region)
+    p_seg_color = []
+    while(np.max(r1) != 0):
+        node = getStartNode(r1)
+        reg_new = getRegDFS(r1,node)
+        p_seg_color.append(reg_new)
+        r1[reg_new] = False
+    return p_seg_color
                     
 
-# def cutRegion(dataMgr):
-#     cpRegionI = np.copy(dataMgr.regionInt)
-#     cpSumList = dataMgr.regionSumList.copy()
-#     cpBList = dataMgr.regionBList.copy()
+def cutRegion(dataMgr, threhold=0):
+    # region = dataMgr.region.IntMatrix
+    reg = dataMgr.region
+    sumList = dataMgr.region.regSumList
+    BList = dataMgr.region.regBList
+    cpRegionI = np.copy(reg)
+    cpSumList = sumList.copy()
+    cpBList = BList.copy()
 
-#     for i in range(dataMgr.regionSize):
-#         idx = i+1
-#         if dataMgr.regionSumList[idx]<=0:
-#             continue
-#         regList = getDFSRegions(cpBList[idx])
-#         dataMgr.regionBList[idx] = regList[0]
-#         dataMgr.regionSumList[idx] = np.sum(regList[0])
-#         for j in range(1,len(regList)):
-#             dataMgr.regionBList.append(regList[j])
-#             dataMgr.regionSumList.append(np.sum(regList[j]))
-#             dataMgr.regionNum += 1
-#             dataMgr.regionSize += 1
-#             dataMgr.regionInt[regList[j]] = dataMgr.regionSize-1
+    for i in range(reg.regSize):
+        idx = i+1
+        if SumList[idx]<=0:
+            continue
+        regList = getDFSRegions(cpBList[idx])
+        BList[idx] = regList[0]
+        SumList[idx] = np.sum(regList[0])
+        reg.mergeLittleReg(idx,threhold)
 
+        for reg_1 in range(1,len(regList)):
+            reg.addRegion(reg_1)
+            reg.mergeLittleReg(reg.regionSize,threhold)
+            # BList.append(regList[j])
+            # SumList.append(np.sum(regList[j]))
+            # dataMgr.regionNum += 1
+            # dataMgr.regionSize += 1
+            # dataMgr.regionInt[regList[j]] = dataMgr.regionSize-1
+
+    for i in range(reg.regSize):
+        idx = i+1
+        if reg.regionSumList[idx] ==0:
+            continue
+        if reg.regionSumList[idx] <= threhold:
+            print("...wee , num= ",idx,".")
 
 def getChara2(data,para):
     wc1 = para.p_cha_wc1
@@ -638,6 +652,7 @@ def getLargeSegment(dataMgr, num = 1000, move_step = 4, killTinyReg = False):
             if np.sum(np.logical_and(reg1,region_visited)) !=0:
                 print("???")
             dataMgr.region.addRegion(reg1)
+        dataMgr.region.
 
 
 

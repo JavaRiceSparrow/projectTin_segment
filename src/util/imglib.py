@@ -35,6 +35,21 @@ def arrToImg(data, inv = False):
     ndata = np.concatenate([ndata, ndata, ndata], axis=2)
     return ndata
 
+def charaToImg(data, inv = False):
+    if type(data) != np.ndarray:
+        print("Data type wrong!")
+        return None
+    if data.dtype == bool:
+        ndata = 255*(data.astype('uint8'))
+
+    else:
+        if np.min(data) < 0:
+            print("imglib.charaToImg: negative chara data.")
+        # ndata = data.copy()
+        ndata = (data/np.max(data)*255).astype('uint8')
+    
+    return arrToImg(ndata)
+
 def img3dTo2d(data):
     if len(data.shape) != 3:
         return 0

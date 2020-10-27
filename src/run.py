@@ -48,9 +48,9 @@ else:
 import time
 
 inpathHead = "Pic/"
-outpathHead = "output/ranSeg/area/"
+outpathHead = "output/ranSeg/1027/"
 runhead = "r3_"
-testhead = "t3_"
+testhead = "t1_"
 # pathnames = [f for f in os.listdir(in_path) if os.path.isfile(os.path.join(in_path, f))]
 pathnames = list1
 # print(onlyfiles)
@@ -74,7 +74,7 @@ def testFile(path_name):
         print("\""+in_path+"\" error!")
         return
     print("Image "+in_path+" ...")
-    out = RSrunner.testFile(data)
+    out = RSrunner.processFile(data,test=True)
     print("Save as "+out_path+" ...")
     imglib.saveImg(out,out_path)
     
