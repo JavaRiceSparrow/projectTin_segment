@@ -10,7 +10,7 @@ DEF_LDATA = True
 
 class dataParam(object):
     '''
-    (p_seg_color,p_seg_dist,p_cha_wc1,p_cha_wc23,p_cha_we,p_cha_wr,p_cha_thre,p_laMge_bottom,p_laMge_top)
+    (p_seg_color,p_seg_dist,p_cha_wc1,p_cha_wc23,p_cha_we,p_cha_wr,p_cha_thre,p_la_bottom,p_la_top)
     p_seg_color : gain of cb&cr
     p_seg_dist : gain of dist
     p_cha_wc1 : gain of cy (cha)
@@ -18,8 +18,8 @@ class dataParam(object):
     p_cha_we : weight of edge
     p_cha_wr : weight of ridge
     p_cha_thre : 25
-    p_laMge_bottom : little area merge down
-    p_laMge_top : little area merge up
+    p_la_bottom : little area merge down
+    p_la_top : little area merge up
     '''
     def __init__(self):
         self.p_seg_color    = 4
@@ -29,8 +29,8 @@ class dataParam(object):
         self.p_cha_we       = 0.8
         self.p_cha_wr       = 1
         self.p_cha_thre     = 15
-        self.p_laMge_bottom = 0
-        self.p_laMge_top    = 0
+        self.p_la_bottom = 0
+        self.p_la_top    = 0
         self.p_gd_we        = 0
         self.p_gd_wr        = 0
         self.p_gd_pow       = 0
@@ -104,11 +104,28 @@ class RegionMgr(object):
         self.regBoolList.append(region)
         self.regSumList.append(np.sum(region))
         if (np.sum(self.IntMatrix[region]) != 0):
-            print("\"region.py.RegionMgr.addRegion\": regions might be covered.")
+            print("\"region.RegionMgr.addRegion\": regions might be covered.")
         self.IntMatrix[region] = self.regSize
 
         # region
         return True
+
+    def cutRegion(self,idx , region):
+        if region.dtype != bool:
+            return False
+        if np.sum(np.logical_and(self.regBoolList[idx],region)) != np.sum(region):
+            print("\"region.RegionMgr.cutRegion\": regions out of original reg.")
+        # sum1 = np.sum(region)
+        self.IntMatrix[region] = 0
+        # print(np.sum(self.IntMatrix[region]))
+        self.regSumList[idx] -= np.sum(region)
+        self.regBoolList[idx][region] = False
+        # if self.regSumList[idx] != np.sum(self.regBoolList[idx]):
+        #     print("?")
+
+
+        # region
+        return self.addRegion(region)
         
 
     def mergeRegion(self, pos1, pos2):
@@ -261,17 +278,18 @@ class DataMgr(object):
         # grad_func = cy_arr + np.sqrt(p_seg_color)*(cb_arr+cr_arr)
         # nodelib.getGradient(cy_arr)
         self.grad = np.abs(cy_arr) + np.sqrt(p_seg_color)*(np.abs(cb_arr)+np.abs(cr_arr))
-    def setMeanGradArr(self):
+    def getMeanGrad(self):
         if not self.region.vertifyRegion():
             print("?_?_?_?")
-        self.meanGrad = np.zeros(self.shape,dtype = float)
+        meanGrad = np.zeros(self.shape,dtype = float)
         for i in range(1,self.region.regSize+1):
             
             if self.region.regSumList[i] == 0:
                 continue
             reg = self.region.regBoolList[i]
-            self.meanGrad[reg] = np.mean(self.grad[reg])
+            meanGrad[reg] = np.mean(self.grad[reg])
         # return self.region.IntMatrix[x,y]
+        return meanGrad
 
     
     

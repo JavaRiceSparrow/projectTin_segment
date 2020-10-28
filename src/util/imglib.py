@@ -35,20 +35,26 @@ def arrToImg(data, inv = False):
     ndata = np.concatenate([ndata, ndata, ndata], axis=2)
     return ndata
 
-def charaToImg(data, inv = False):
+def charaToImg(data, pow = 0.5, inv = False):
     if type(data) != np.ndarray:
         print("Data type wrong!")
         return None
+    if len(data.shape) == 3:
+        print("???")
     if data.dtype == bool:
         ndata = 255*(data.astype('uint8'))
 
     else:
         if np.min(data) < 0:
             print("imglib.charaToImg: negative chara data.")
+        # ndata[ndata==0] == 1E-3**(1/pow)
+        ndata = data.copy()
+        ndata[ndata!=0] == np.power(ndata[ndata!=0],pow)
         # ndata = data.copy()
-        ndata = (data/np.max(data)*255).astype('uint8')
+        ndata = (ndata/np.max(ndata)*255).astype('uint8')
+
     
-    return arrToImg(ndata)
+    return arrToImg(ndata,inv)
 
 def img3dTo2d(data):
     if len(data.shape) != 3:
@@ -101,7 +107,7 @@ def mergeArray(datas, axis=1, interval = 0):
     tdatas = tuple(list1)
 
     return np.concatenate((tdatas), axis = axis)
-def addArrayCol(data, axis=1, interval = 0):
+def addArrayCol(data, axis=1, interval = 1):
     '''
     '''
     if interval==0:

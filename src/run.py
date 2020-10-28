@@ -50,7 +50,7 @@ import time
 inpathHead = "Pic/"
 outpathHead = "output/ranSeg/1027/"
 runhead = "r3_"
-testhead = "t1_"
+testhead = "t5_"
 # pathnames = [f for f in os.listdir(in_path) if os.path.isfile(os.path.join(in_path, f))]
 pathnames = list1
 # print(onlyfiles)
@@ -96,7 +96,7 @@ def processFile(path_name):
     
 # '''
 def main(argv=None):
-    limit_memory(1024*1024*1024*2)
+    limit_memory(1024*1024*1024*3)
     if argv is None:
         argv = sys.argv
     argLen = len(argv)

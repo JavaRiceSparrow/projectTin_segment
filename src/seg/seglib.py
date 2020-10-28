@@ -68,19 +68,23 @@ def matrixConvolution(data, filter, axis_along = 0):
     if axis_along == 0:
         for i in range(mid):
             cdata[i,mid-i:] = data[:i-mid]
+            cdata[i,:mid-i] = data[0:1]
 
         cdata[mid] = data
         for i in range(mid):
             # i = i-mid
             cdata[-i-1][:i-mid] = data[mid-i:] 
+            cdata[-i-1][i-mid:] = data[-1:] 
     else :
         for i in range(mid):
             cdata[i,:,mid-i:] = data[:,:i-mid] 
+            cdata[i,:,:mid-i] = data[:,0:1]
 
         cdata[mid] = data
         for i in range(mid):
             # i = i-mid
             cdata[-i-1,:,:i-mid] = data[:,mid-i:] 
+            cdata[-i-1,:,i-mid:] = data[:,-1:] 
     
     for i in range(fsize):
         cdata[i] = cdata[i] * filter[i]
