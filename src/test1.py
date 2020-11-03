@@ -7,17 +7,9 @@ import numpy as np
 
 color1 = np.array([[[115,82,68],[194,150,130],[98,122,157]]])
 
-color2 = imglib.RGB2Lab(color1)
-# cx = imglib.RGBtoXYZ(color1)
-print(color2)
-color2 = imglib.RGBtoLAB(color1)
-# cx = imglib.RGBtoXYZ(color1)
-print(color2)
-# print(color2)
-# for i in color1:
-#     for j in i:
-#         print(imglib.soleRGBtoLAB(j) )
-
+a1 = np.array([[[1,0,0],[1,1,0],[0,1,1]]], dtype=bool)
+print(color1[a1])
+print(color1[a1][0])
 
 # array1 = np.array([[1,1,1,2,3,3,3,3],[1,2,2,2,2,3,3,3],[2,2,2,2,2,4,4,3],\
 #     [2,2,2,2,2,2,4,3],[2,2,5,5,5,5,5,5],[6,2,5,5,7,7,7,7]])

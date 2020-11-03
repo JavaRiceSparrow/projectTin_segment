@@ -87,9 +87,9 @@ def processFile(data, test = False):
     param = dataMgr.para
     setPara(dataMgr,imglib.isGray(data), dataMgr.shape )
     start_time = time.time()
-    getLargeSegment(dataMgr, 1000,killTinyReg=True) ## TODO
+    getLargeSegment(dataMgr, 1000,killTinyReg=False) ## TODO
     output0 = dataMgr.region_copy()
-    if np.mean(output0)!=np.mean(dataMgr.region.IntMatrix):
+    if np.mean(output0)!=np.mean(dataMgr.regMgr.space):
         print("Wrong!")
     print("RandomSeg edge time:\t\t--- %8.4f seconds ---" % (time.time() - start_time))
     
