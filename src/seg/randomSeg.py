@@ -172,7 +172,7 @@ def getRegDFS(region,node):
     value = region[x,y]
     reg2[x,y] = True
     p_seg_color=[node]
-    del node
+    # del node
     size = region.shape
     while(len(p_seg_color) !=0):
         node1 = p_seg_color.pop()
@@ -191,7 +191,7 @@ def getDFSRegions(region):
 
     r1 = np.copy(region)
     p_seg_color = []
-    while(np.max(r1) != 0):
+    while(np.sum(r1) != 0):
         node = getStartNode(r1)
         reg_new = getRegDFS(r1,node)
         p_seg_color.append(reg_new)
@@ -203,11 +203,11 @@ def testSimpleReg(region):
     r1 = np.copy(region)
     node = getStartNode(r1)
     reg_new = getRegDFS(r1,node)
-    if np.sum(reg_new) != np.sum(r1):
+    if np.sum(reg_new) < np.sum(r1):
         return False
     return True             
 
-def cutRegion(dataMgr, threhold=0):
+def cutRegion(dataMgr, threhold=1):
     # region = dataMgr.region.IntMatrix
     reg = dataMgr.region
     sumList = dataMgr.region.regSumList
@@ -216,12 +216,15 @@ def cutRegion(dataMgr, threhold=0):
     cpSumList = sumList.copy()
     cpBList = BList.copy()
 
+
     for i in range(reg.regSize):
         idx = i+1
         if sumList[idx]<=0:
             continue
         regList = getDFSRegions(cpBList[idx])
         if len(regList)==1:
+            if sumList[idx] <= threhold:
+                reg.labelLittleReg(idx, threhold)
             continue
         # reg.IntMatrix[BList[idx]] = 0
         # reg.IntMatrix[regList[0]] = idx
@@ -232,27 +235,13 @@ def cutRegion(dataMgr, threhold=0):
         for reg_1 in range(1,len(regList)):
             if not reg.cutRegion(idx,regList[reg_1]):
                 print("wee?")
-            reg.mergeLittleReg(reg.regSize,threhold)
-            # BList.append(regList[j])
-            # SumList.append(np.sum(regList[j]))
-            # dataMgr.regionNum += 1
-            # dataMgr.regionSize += 1
-            # dataMgr.regionInt[regList[j]] = dataMgr.regionSize-1
-    print('Hi!')
-    reg.settleRegion()
-    su = True
-    for i in range(reg.regSize):
-        idx = i+1
-        if sumList[idx] ==0:
-            continue
-        if sumList[idx] <= threhold:
-            su = False
-            # print("...wee , num= ",idx,".")
-        if not testSimpleReg(BList[idx]):
-            print('An reg uncut!')
+            reg.labelLittleReg(reg.regSize,threhold)
 
-    if not su:
-        print("...wee.")
+    print("Finished cut")
+
+        # if not testSimpleReg(BList[idx]):
+        #     print("tReg: cut fail.")
+    reg.mergeLabelReg()
 
 # Belong to getDFSRegions 
 # ----------------------------------------------------- #
@@ -521,6 +510,59 @@ def mergeRegion_AG_3(dataMgr):
     regMgr.settleRegion()
                     
 
+def mergeRegion_AG_31(dataMgr):
+    '''
+    By area and region param
+    Using chara3 (which consider meanGrad)
+    '''
+
+    def areaChara(area,p_la_bottom,p_la_top):
+        if area<p_la_bottom:
+            return 1
+        if area>p_la_top:
+            return 0
+        return (area-p_la_bottom)/(p_la_top-p_la_bottom)
+
+
+    p_la_bottom = dataMgr.para.p_la_bottom
+    p_la_top = dataMgr.para.p_la_top
+    p_gd_thre = dataMgr.para.p_gd_thre
+
+    data = dataMgr.Cdata
+    size = dataMgr.shape
+    chara_d,chara_r = getChara3(dataMgr)
+    regions = dataMgr.region.IntMatrix
+    regMgr = dataMgr.region
+    difReg_d = regions[:-1,:] != regions[1:,:]
+    difReg_r = regions[:,:-1] != regions[:,1:]
+    l_a = p_gd_thre
+
+    mg_d = np.minimun(dataMgr.grad[:-1],dataMgr.grad[1:])
+    mg_r = np.minimun(dataMgr.grad[:,:-1],dataMgr.grad[:,1:])
+
+    # down
+    for x in range(size[0]-1):
+        for y in range(size[1]):
+            if difReg_d[x,y] :
+                i1,i2 = dataMgr.getNodeIdx((x+1,y)),dataMgr.getNodeIdx((x,y))
+                area = min(regMgr.regSumList[i1],regMgr.regSumList[i2])
+                if area==0:
+                    print("randomSeg.mergeRegion_A_2: area=0")
+
+                if chara_d[x,y]-l_a*areaChara(area,p_la_bottom,p_la_top)<=p_gd_thre-1/mg_d:
+                    regMgr.mergeRegion((x+1,y),(x,y))
+    # right
+    for x in range(size[0]):
+        for y in range(size[1]-1):
+            if difReg_r[x,y]:
+                i1,i2 = dataMgr.getNodeIdx((x,y+1)),dataMgr.getNodeIdx((x,y))
+                area = min(regMgr.regSumList[i1],regMgr.regSumList[i2])
+                if area==0:
+                    print("randomSeg.mergeRegion_A_2: area=0")
+                if chara_r[x,y]-l_a*areaChara(area,p_la_bottom,p_la_top)<=p_gd_thre-1/mg_r:
+                    regMgr.mergeRegion((x,y+1),(x,y))
+
+    regMgr.settleRegion()
 
 def mergeLittleRegion(dataMgr):
     threhold = dataMgr.para.p_la_bottom
@@ -703,6 +745,7 @@ def getLargeSegment(dataMgr, num = 1000, move_step = 4, killTinyReg = False):
 
                 del reg1
     else:
+        print("kill little reg...")
         for i in range(num):
             idx = i+1
             reg1 = (region==idx)
@@ -711,8 +754,41 @@ def getLargeSegment(dataMgr, num = 1000, move_step = 4, killTinyReg = False):
             #     print(n_1)
             dataMgr.region.addRegion(reg1)
             region_visited[reg1] = True
-        cutRegion(dataMgr,dataMgr.para.p_la_bottom)
 
+        # print("L:",dataMgr.region.vertifyList() )
+        # print("R:",dataMgr.region.vertifyRegion() )
+        print("num: ", dataMgr.region.regNum)
+        threhold = dataMgr.para.p_la_bottom
+
+        cutRegion(dataMgr,threhold)
+
+        dataMgr.region.settleRegion()
+        # print("L:",dataMgr.region.vertifyList() )
+        # print("R:",dataMgr.region.vertifyRegion() )
+        print("num: ", dataMgr.region.regNum)
+
+        # print('Hi!')
+        su = True
+        u_m = 0
+        u_c = 0
+        for i in range(dataMgr.region.regSize):
+            idx = i+1
+            if dataMgr.region.regSumList[idx] ==0:
+                continue
+            if dataMgr.region.regSumList[idx] <= threhold:
+                # print('An reg unmerge!')
+                u_m += 1
+                su = False
+                # print("...wee , num= ",idx,".")
+            if not testSimpleReg(dataMgr.region.regBoolList[idx]):
+                # print('An reg uncut!')
+                u_c += 1
+                su = False
+
+        if not su:
+            # print("...wee.")
+            print('Unmerge reg num : ', u_m)
+            print('Uncut reg num   : ', u_c)
 
 
 

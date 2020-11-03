@@ -35,10 +35,14 @@
 72: LEAF.JPG 
 93:                  fighter
 
-121 lena_256.bmp
+122 lena_gray.bmp Big!
+
+120 lena_128.bmp 
 
 
  ----- color, simp ----- 
+
+
 
 101  bell-peppers-1420709__180.jpg
 
@@ -46,8 +50,13 @@
 
 133 planets.bmp
 
+126 pens.bmp
+
 
 python src/run.py 114 116 103 101 68 133 63
-python src/run.py -test 114 103 101 68 133 63
+## python src/run.py -test 63 68 101 103 114 126 133 114 116 103 101 68 133 63 122 151
+
+python src/run.py -test 63 68 101 103 114 116 120 126 133 151
+
 
 python src/test1.py

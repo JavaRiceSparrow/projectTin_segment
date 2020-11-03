@@ -56,25 +56,25 @@ def setPara(dataMgr, gray, shape):
             pa.p_la_bottom = 64
             pa.p_la_top = int(max(400,max(dataMgr.shape[0],dataMgr.shape[1])/10.0*4,dataMgr.shape[0]*dataMgr.shape[1]/1600))
             pa.p_gd_pow = 0.5
-            pa.p_gd_we = 1.5
-            pa.p_gd_wr = 1.5
-            pa.p_gd_thre = 10
+            pa.p_gd_we = 2.0
+            pa.p_gd_wr = 3.0
+            pa.p_gd_thre = 20
             # dataMgr.para = (p_seg_color,p_seg_dist,p_cha_wc1,p_cha_wc23,p_cha_we,p_cha_wr,p_cha_thre,p_la_bottom,p_la_top)
-        else:
+        else: #if gray
             # print("gray")
             pa.p_seg_color = 0
-            pa.p_seg_dist = 0.2
+            pa.p_seg_dist = 0.14
             pa.p_cha_wc1 = 1
             pa.p_cha_wc23 = pa.p_cha_wc1*pa.p_seg_color
             pa.p_cha_we = 4
             pa.p_cha_wr = 3
-            pa.p_cha_thre = 7
+            pa.p_cha_thre = 5
             pa.p_la_bottom = 64
             pa.p_la_top = int(max(400,max(dataMgr.shape[0],dataMgr.shape[1])/10.0*4,dataMgr.shape[0]*dataMgr.shape[1]/1600))
             pa.p_gd_pow = 0.5
-            pa.p_gd_we = 1.5
-            pa.p_gd_wr = 1.5
-            pa.p_gd_thre = 7
+            pa.p_gd_we = 2.2
+            pa.p_gd_wr = 4
+            pa.p_gd_thre = 25
             # dataMgr.para = (p_seg_color,p_seg_dist,p_cha_wc1,p_cha_wc23,p_cha_we,p_cha_wr,p_cha_thre,p_la_bottom,p_la_top)
         
 def processFile(data, test = False):
@@ -87,7 +87,7 @@ def processFile(data, test = False):
     param = dataMgr.para
     setPara(dataMgr,imglib.isGray(data), dataMgr.shape )
     start_time = time.time()
-    getLargeSegment(dataMgr, 1000,killTinyReg=False) ## TODO
+    getLargeSegment(dataMgr, 1000,killTinyReg=True) ## TODO
     output0 = dataMgr.region_copy()
     if np.mean(output0)!=np.mean(dataMgr.region.IntMatrix):
         print("Wrong!")
