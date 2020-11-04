@@ -68,20 +68,24 @@ def toMean(dataMgr, drawEdge = False, cEdge =  False, alert = True):
     data = dataMgr.data_copy()
     out = np.zeros((size_x, size_y, 3))
     count = 0
-    if alert:
-        reg0 = regMgr.space==0
-        out[reg0] = np.array([255,0,0])
-    for i in range(regMgr.idxMax):
-        idx = i+1
-        reg = regMgr.space==idx
-        if np.sum(reg)==0:
-            continue
+    region_visited = np.zeros((size_x, size_y),dtype=bool)
+    for i in range( size_x):
+        for j in range(size_y):
+            if region_visited[i,j]:
+                continue
+            # idx = regMgr.space[i,j]
+        reg = regMgr.getRegion((i,j))
+        # if np.sum(reg)==0:
+        #     continue
         count += 1
-        # if count > regMgr.idxNum:
-        #     print("?")
+    if count > regMgr.idxNum:
+        print("?count out")
         # if np.sum(dataMgr.regionBList[idx]) == 0:
         #     print("?'")
         out[reg] = np.mean(data[reg],axis = 0)
+    if alert:
+        reg0 = regMgr.space==0
+        out[reg0] = np.array([255,0,0])
     if drawEdge:
         edge = nodelib.getEdge(regMgr.space)
 
@@ -766,57 +770,65 @@ def getLargeSegment(dataMgr, num = 1000, move_step = 4, killTinyReg = False):
                     region[x,y] = i+1
 
     region_visited = np.zeros(size[0:2], dtype = bool)
-    if not killTinyReg:
-        for i in range( size[0]):
-            for j in range(size[1]):
-                if region_visited[i,j]:
-                    continue
-                reg1 = getRegDFS(region, (i,j))
-                region_visited[reg1] = True
-                
-                dataMgr.regMgr.addRegion(reg1) #np.zeros((size[0],size[1]),bool)
-
-                del reg1
-    else:
-        print("kill little reg...")
-        for i in range(num):
-            idx = i+1
-            reg1 = (region==idx)
-            # n_1 = np.sum(np.logical_and(reg1,region_visited))
-            # if n_1 !=0:
-            #     print(n_1)
-            dataMgr.regMgr.addRegion(reg1)
-            region_visited[reg1] = True
-        print("num: ", dataMgr.regMgr.idxNum)
-        threhold = dataMgr.para.p_la_bottom
-
-        cutScatterRegion(dataMgr,threhold)
-
-        # dataMgr.regMgr.settleRegion()
-        print("num: ", dataMgr.regMgr.idxNum)
-
-        # print('Hi!')
-        su = True
-        u_m = 0
-        u_c = 0
-        for i in range(dataMgr.regMgr.regSize):
-            idx = i+1
-            if dataMgr.regMgr.regSumList[idx] ==0:
+    for i in range( size[0]):
+        for j in range(size[1]):
+            if region_visited[i,j]:
                 continue
-            if dataMgr.regMgr.regSumList[idx] <= threhold:
-                # print('An reg unmerge!')
-                u_m += 1
-                su = False
-                # print("...wee , num= ",idx,".")
-            if not testSimpleReg(dataMgr.regMgr.regBoolList[idx]):
-                # print('An reg uncut!')
-                u_c += 1
-                su = False
+            reg1 = getRegDFS(region, (i,j))
+            region_visited[reg1] = True
+            
+            dataMgr.regMgr.addRegion(reg1) #np.zeros((size[0],size[1]),bool)
+    # if not killTinyReg:
+    #     for i in range( size[0]):
+    #         for j in range(size[1]):
+    #             if region_visited[i,j]:
+    #                 continue
+    #             reg1 = getRegDFS(region, (i,j))
+    #             region_visited[reg1] = True
+                
+    #             dataMgr.regMgr.addRegion(reg1) #np.zeros((size[0],size[1]),bool)
 
-        if not su:
-            # print("...wee.")
-            print('Unmerge reg num : ', u_m)
-            print('Uncut reg num   : ', u_c)
+    #             del reg1
+    # else:
+    #     print("kill little reg...")
+    #     for i in range(num):
+    #         idx = i+1
+    #         reg1 = (region==idx)
+    #         # n_1 = np.sum(np.logical_and(reg1,region_visited))
+    #         # if n_1 !=0:
+    #         #     print(n_1)
+    #         dataMgr.regMgr.addRegion(reg1)
+    #         region_visited[reg1] = True
+    #     print("num: ", dataMgr.regMgr.idxNum)
+    #     threhold = dataMgr.para.p_la_bottom
+
+    #     cutScatterRegion(dataMgr,threhold)
+
+    #     # dataMgr.regMgr.settleRegion()
+    #     print("num: ", dataMgr.regMgr.idxNum)
+
+    #     # print('Hi!')
+    #     su = True
+    #     u_m = 0
+    #     u_c = 0
+    #     for i in range(dataMgr.regMgr.regSize):
+    #         idx = i+1
+    #         if dataMgr.regMgr.regSumList[idx] ==0:
+    #             continue
+    #         if dataMgr.regMgr.regSumList[idx] <= threhold:
+    #             # print('An reg unmerge!')
+    #             u_m += 1
+    #             su = False
+    #             # print("...wee , num= ",idx,".")
+    #         if not testSimpleReg(dataMgr.regMgr.regBoolList[idx]):
+    #             # print('An reg uncut!')
+    #             u_c += 1
+    #             su = False
+
+    #     if not su:
+    #         # print("...wee.")
+    #         print('Unmerge reg num : ', u_m)
+    #         print('Uncut reg num   : ', u_c)
 
 
 

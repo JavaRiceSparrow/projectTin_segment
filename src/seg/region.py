@@ -59,6 +59,7 @@ class RegionMgr(object):
         if np.sum(region)==0:
             return False
         self.idxMax += 1
+        self.idxNum += 1
         if (np.sum(self.space[region]) != 0):
             print("\"region.RegionMgr.addRegion\": regions might be covered.")
         self.space[region] = self.idxMax
@@ -100,8 +101,8 @@ class RegionMgr(object):
             idx2 = self.space[x2,y2]
         if idx1 == idx2:
             return False
-        reg1 = self.space==idx1
-        reg2 = self.space==idx2
+        reg1 = self.getRegion(pos1)
+        reg2 = self.getRegion(pos2)
         a1 = self.areaMat[reg1][0]
         a2 = self.areaMat[reg2][0]
         # TODO
