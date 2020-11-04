@@ -188,15 +188,14 @@ def processFile(data, test = False):
         m_grad = dataMgr.getMeanGrad()
         oc.append(imglib.charaToImg(reg_f,inv=True))
         oce.append(imglib.charaToImg(m_grad,inv=True))
-        # # ------------------------------------- #
-        # # ---- merge Chara3                 --- #
-        # start_time = time.time()
-        # mergeRegion_AG_3(dataMgr)
-        # print("Merge3 time:\t\t\t--- %8.4f seconds ---" % (time.time() - start_time))
-        # oc.append(toMean(dataMgr,False))
-        # oce.append(toMean(dataMgr,True))
-        # # oc.append(toMean(dataMgr,False))
-        # # oce.append(toMean(dataMgr,True))
+        # ------------------------------------- #
+        # ---- merge Chara3                 --- #
+        start_time = time.time()
+        mergeRegion_AG_3(dataMgr)
+        print("Merge3 time:\t\t\t--- %8.4f seconds ---" % (time.time() - start_time))
+        oc.append(toMean(dataMgr,False))
+        oce.append(toMean(dataMgr,True))
+        
 
 
 
