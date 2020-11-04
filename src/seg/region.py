@@ -29,12 +29,15 @@ class dataParam(object):
         self.p_cha_we       = 0.8
         self.p_cha_wr       = 1
         self.p_cha_thre     = 15
-        self.p_la_bottom = 0
-        self.p_la_top    = 0
+        self.p_la_bottom    = 0
+        self.p_la_top       = 0
         self.p_gd_we        = 0
         self.p_gd_wr        = 0
         self.p_gd_pow       = 0
-        self.pa.p_gd_thre   = 0
+        self.p_gd_thre      = 0
+        self.p_wth_thre     = 0
+        self.p_wth_area     = 0
+        self.p_wth_grad     = 0
 
         # self.p_seg = {'w_color' : 4,'w_dist' : 0.5}
         # self.p_chara = {'w_c1' : 1, 'w_c23' : 1*4, 'w_edge' : 0.8, 'w_ridge' : 1, 'threhold' : 15}
@@ -53,11 +56,11 @@ class RegionMgr(object):
     # '''
     def settleRegion(self):
         # TODO
-        # return 0
+        return 0
 
         endP_i = 1
         emptyP_i = endP_i
-        test_a = np.zeros(self.size,dtype=bool)
+        test_a = np.zeros(self.shape,dtype=bool)
 
         while endP_i <=self.regSize:
             if self.regSumList[endP_i] == 0:

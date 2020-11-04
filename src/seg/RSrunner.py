@@ -58,7 +58,10 @@ def setPara(dataMgr, gray, shape):
             pa.p_gd_pow = 0.5
             pa.p_gd_we = 2.0
             pa.p_gd_wr = 3.0
-            pa.p_gd_thre = 20
+            pa.p_gd_thre = 16
+            pa.p_wth_thre  = 20
+            pa.p_wth_area  = 10
+            pa.p_wth_grad  = 1.5
             # dataMgr.para = (p_seg_color,p_seg_dist,p_cha_wc1,p_cha_wc23,p_cha_we,p_cha_wr,p_cha_thre,p_la_bottom,p_la_top)
         else: #if gray
             # print("gray")
@@ -75,6 +78,9 @@ def setPara(dataMgr, gray, shape):
             pa.p_gd_we = 2.2
             pa.p_gd_wr = 4
             pa.p_gd_thre = 25
+            pa.p_wth_thre  = 20
+            pa.p_wth_area  = 10
+            pa.p_wth_grad  = 1.5
             # dataMgr.para = (p_seg_color,p_seg_dist,p_cha_wc1,p_cha_wc23,p_cha_we,p_cha_wr,p_cha_thre,p_la_bottom,p_la_top)
         
 def processFile(data, test = False):
@@ -87,7 +93,7 @@ def processFile(data, test = False):
     param = dataMgr.para
     setPara(dataMgr,imglib.isGray(data), dataMgr.shape )
     start_time = time.time()
-    getLargeSegment(dataMgr, 1000,killTinyReg=True) ## TODO
+    getLargeSegment(dataMgr, 1000,killTinyReg=False) ## TODO
     output0 = dataMgr.region_copy()
     if np.mean(output0)!=np.mean(dataMgr.region.IntMatrix):
         print("Wrong!")
@@ -193,6 +199,13 @@ def processFile(data, test = False):
         start_time = time.time()
         mergeRegion_AG_3(dataMgr)
         print("Merge3 time:\t\t\t--- %8.4f seconds ---" % (time.time() - start_time))
+        oc.append(toMean(dataMgr,False))
+        oce.append(toMean(dataMgr,True))
+        # ------------------------------------- #
+        # ---- merge Chara3                 --- #
+        start_time = time.time()
+        mergeRegion_AG_31(dataMgr)
+        print("Merge31 time:\t\t\t--- %8.4f seconds ---" % (time.time() - start_time))
         oc.append(toMean(dataMgr,False))
         oce.append(toMean(dataMgr,True))
         
