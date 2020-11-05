@@ -171,46 +171,62 @@ def getStartNode(region):
             if region[i,j]:
                 return (i,j)
 
-def getRegDFS(region,node):
+def getRegDFS(region,node,b_list=False, b_area=False):
     x,y = node
-    reg2 = np.zeros(region.shape,dtype=bool)
     value = region[x,y]
-    reg2[x,y] = True
-    p_seg_color=[node]
-    # del node
     size = region.shape
-    while(len(p_seg_color) !=0):
-        node1 = p_seg_color.pop()
+
+    reg2 = np.zeros(region.shape,dtype=bool)
+    reg2[x,y] = True
+    if b_list:
+        reglist = [node]
+    area = 1
+
+    pos_stack=[node]
+    # del node
+    while(len(pos_stack) !=0):
+        node1 = pos_stack.pop()
         nx,ny = node1
         nList = nodelib.getNearNode(nx,ny,size[0],size[1])
         for node2 in nList:
             if not reg2[node2] and region[node2]==value:
-                p_seg_color.append(node2)
+                pos_stack.append(node2)
                 reg2[node2] = True
+                area+=1
+                if b_list:
+                    regList.append(node2)
 
         del nList, node1, nx,ny
+    if not b_list:
+        if not area:
+            return reg2
+        else:
+            return reg2, area
+    else:
+        if not area:
+            return reglist
+        else:
+            return reglist, area
 
-    return reg2
+# def getDFSRegions(region):
 
-def getDFSRegions(region):
-
-    r1 = np.copy(region)
-    p_seg_color = []
-    while(np.sum(r1) != 0):
-        node = getStartNode(r1)
-        reg_new = getRegDFS(r1,node)
-        p_seg_color.append(reg_new)
-        r1[reg_new] = False
-    return p_seg_color
+#     r1 = np.copy(region)
+#     p_seg_color = []
+#     while(np.sum(r1) != 0):
+#         node = getStartNode(r1)
+#         reg_new = getRegDFS(r1,node)
+#         p_seg_color.append(reg_new)
+#         r1[reg_new] = False
+#     return p_seg_color
 
 
-def testSimpleReg(region):
-    r1 = np.copy(region)
-    node = getStartNode(r1)
-    reg_new = getRegDFS(r1,node)
-    if np.sum(reg_new) < np.sum(r1):
-        return False
-    return True             
+# def testSimpleReg(region):
+#     r1 = np.copy(region)
+#     node = getStartNode(r1)
+#     reg_new = getRegDFS(r1,node)
+#     if np.sum(reg_new) < np.sum(r1):
+#         return False
+#     return True             
 
 def cutScatterRegion(dataMgr, threhold=1):
     # region = dataMgr.region.space
@@ -458,7 +474,7 @@ def mergeRegion_A_2(dataMgr):
                 area = min(regMgr.areaMat[x,y+1],regMgr.areaMat[x,y])
                 if chara_r[x,y]-l_a*areaChara(area,p_la_bottom,p_la_top)<=p_cha_thre:
                     regMgr.mergeRegion((x,y+1),(x,y))
-    # regMgr.settleRegion()
+    regMgr.settleRegion()
     # TODO
                     
 
@@ -511,7 +527,7 @@ def mergeRegion_AG_3(dataMgr):
                 if chara_r[x,y]-l_a*areaChara(area,p_la_bottom,p_la_top)<=p_gd_thre:
                     regMgr.mergeRegion((x,y+1),(x,y))
 
-    # regMgr.settleRegion()
+    regMgr.settleRegion()
                     
 
 def mergeRegion_AG_31(dataMgr):
@@ -564,7 +580,7 @@ def mergeRegion_AG_31(dataMgr):
                 if chara_r[x,y]-l_a*areaChara(area,p_la_bottom,p_la_top)<=p_gd_thre-1/mg_r:
                     regMgr.mergeRegion((x,y+1),(x,y))
 
-    # regMgr.settleRegion()
+    regMgr.settleRegion()
 
 def mergeLittleRegion(dataMgr):
     threhold = dataMgr.para.p_la_bottom
@@ -778,61 +794,10 @@ def getLargeSegment(dataMgr, num = 1000, move_step = 4, killTinyReg = False):
             region_visited[reg1] = True
             
             dataMgr.regMgr.addRegion(reg1) #np.zeros((size[0],size[1]),bool)
-    # if not killTinyReg:
-    #     for i in range( size[0]):
-    #         for j in range(size[1]):
-    #             if region_visited[i,j]:
-    #                 continue
-    #             reg1 = getRegDFS(region, (i,j))
-    #             region_visited[reg1] = True
-                
-    #             dataMgr.regMgr.addRegion(reg1) #np.zeros((size[0],size[1]),bool)
-
-    #             del reg1
-    # else:
-    #     print("kill little reg...")
-    #     for i in range(num):
-    #         idx = i+1
-    #         reg1 = (region==idx)
-    #         # n_1 = np.sum(np.logical_and(reg1,region_visited))
-    #         # if n_1 !=0:
-    #         #     print(n_1)
-    #         dataMgr.regMgr.addRegion(reg1)
-    #         region_visited[reg1] = True
-    #     print("num: ", dataMgr.regMgr.idxNum)
-    #     threhold = dataMgr.para.p_la_bottom
-
-    #     cutScatterRegion(dataMgr,threhold)
-
-    #     # dataMgr.regMgr.settleRegion()
-    #     print("num: ", dataMgr.regMgr.idxNum)
-
-    #     # print('Hi!')
-    #     su = True
-    #     u_m = 0
-    #     u_c = 0
-    #     for i in range(dataMgr.regMgr.regSize):
-    #         idx = i+1
-    #         if dataMgr.regMgr.regSumList[idx] ==0:
-    #             continue
-    #         if dataMgr.regMgr.regSumList[idx] <= threhold:
-    #             # print('An reg unmerge!')
-    #             u_m += 1
-    #             su = False
-    #             # print("...wee , num= ",idx,".")
-    #         if not testSimpleReg(dataMgr.regMgr.regBoolList[idx]):
-    #             # print('An reg uncut!')
-    #             u_c += 1
-    #             su = False
-
-    #     if not su:
-    #         # print("...wee.")
-    #         print('Unmerge reg num : ', u_m)
-    #         print('Uncut reg num   : ', u_c)
+    
 
 
-
-    # dataMgr.settleRegion()
+    dataMgr.settleRegion()
     return region
 
 

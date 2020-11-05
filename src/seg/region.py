@@ -5,6 +5,51 @@ from util import imglib, nodelib
 DEF_LDATA = False 
 DEF_LDATA = True
 
+# ----------------------------------------------------- #
+# Belong to getDFSRegions 
+def getStartNode(region):
+    size = region.shape
+    for i in range(size[0]):
+        for j in range(size[1]):
+            if region[i,j]:
+                return (i,j)
+
+def getRegDFS(region,node,b_list=False, b_area=False):
+    x,y = node
+    value = region[x,y]
+    size = region.shape
+
+    reg2 = np.zeros(region.shape,dtype=bool)
+    reg2[x,y] = True
+    if b_list:
+        reglist = [node]
+    area = 1
+
+    pos_stack=[node]
+    # del node
+    while(len(pos_stack) !=0):
+        node1 = pos_stack.pop()
+        nx,ny = node1
+        nList = nodelib.getNearNode(nx,ny,size[0],size[1])
+        for node2 in nList:
+            if not reg2[node2] and region[node2]==value:
+                pos_stack.append(node2)
+                reg2[node2] = True
+                area+=1
+                if b_list:
+                    regList.append(node2)
+
+        del nList, node1, nx,ny
+    if not b_list:
+        if not area:
+            return reg2
+        else:
+            return reg2, area
+    else:
+        if not area:
+            return reglist
+        else:
+            return reglist, area
 
 
 
@@ -119,41 +164,32 @@ class RegionMgr(object):
         return True
 
     def settleRegion(self):
+        return 
         if not self.vertifyFull():
             print("??? ??")
         numList = np.zeros([self.idxMax], dtype=bool)
+        idxList = np.zeros([self.idxMax], dtype=bool)
         for i in range(self.shape[0]):
             for j in range(self.shape[1]):
                 idx = self.space[i,j]
                 numList[idx-1] = 1
+        idx = 0
         for i in range(len(numList)):
             if numList[i]:
-                idx = i+1
+                idx = idx+1
+                idxList[i] = idx
+        for i in range(self.shape[0]):
+            for j in range(self.shape[1]):
+                idx = self.space[i,j]
+                self.space[i,j] = idxList[idx-1]
+
+        
                 # TODO
 
-    def getRegion(self, pos):
+    def getRegion(self, pos, b_list=False):
         # x,y = pos
-        def getRegDFS(region,node):
-            x,y = node
-            reg2 = np.zeros(self.shape,dtype=bool)
-            value = region[x,y]
-            reg2[x,y] = True
-            p_seg_color=[node]
-            # del node
-            size = region.shape
-            while(len(p_seg_color) !=0):
-                node1 = p_seg_color.pop()
-                nx,ny = node1
-                nList = nodelib.getNearNode(nx,ny,self.shape[0],self.shape[1])
-                for node2 in nList:
-                    if not reg2[node2] and region[node2]==value:
-                        p_seg_color.append(node2)
-                        reg2[node2] = True
-
-                del nList, node1, nx,ny
-
-            return reg2
-        return getRegDFS(self.space, pos)
+        
+        return getRegDFS(self.space, pos, b_list=b_list)
 
     def vertifyFull(self):
         if np.min(self.space)==0:
@@ -161,7 +197,20 @@ class RegionMgr(object):
         if np.min(self.areaMat)==0:
             return False
 
-        return su
+        return True
+
+    def vertifyArea(self):
+        visited = np.zeros(self.shape,dtype=bool)
+        for i in range(self.shape[0]):
+            for j in range(self.shape[1]):
+                if not visited[i,j]:
+                    rlist, area = getRegDFS(self.space, (i,j), b_list=True, b_area=True)
+                    if area!=self.areaMat[rlist[0]]:
+                        return False
+                    for pos in rlist:
+                        visited[pos] = True
+
+        return True
     # def vertifyRegion(self):
     #     for i in range:
 
@@ -213,26 +262,7 @@ class RegionMgr(object):
                     if region[i,j]:
                         return (i,j)
 
-        def getRegDFS(region,node):
-            x,y = node
-            reg2 = np.zeros(self.shape,dtype=bool)
-            value = region[x,y]
-            reg2[x,y] = True
-            p_seg_color=[node]
-            # del node
-            size = region.shape
-            while(len(p_seg_color) !=0):
-                node1 = p_seg_color.pop()
-                nx,ny = node1
-                nList = nodelib.getNearNode(nx,ny,self.shape[0],self.shape[1])
-                for node2 in nList:
-                    if not reg2[node2] and region[node2]==value:
-                        p_seg_color.append(node2)
-                        reg2[node2] = True
-
-                del nList, node1, nx,ny
-
-            return reg2
+        
         reg = self.space==-2
         regsum = np.sum(reg)
         if np.sum(reg)==0:

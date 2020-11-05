@@ -1,9 +1,13 @@
 Pic/
 src/__pycache__/
 output/
+doc/
 
 # Python:
 *.pyc
 *.gif
 *.bmp
 *.jpg
+
+doc/TODOlist.txt
+.gitignore
