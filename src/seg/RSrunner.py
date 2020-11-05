@@ -59,9 +59,9 @@ def setPara(dataMgr, gray, shape):
             pa.p_gd_we = 2.0
             pa.p_gd_wr = 3.0
             pa.p_gd_thre = 16
-            pa.p_wth_thre  = 20
-            pa.p_wth_area  = 10
-            pa.p_wth_grad  = 1.5
+            pa.p_wth_thre  = 40
+            pa.p_wth_area  = 2
+            pa.p_wth_grad  = 25
             # dataMgr.para = (p_seg_color,p_seg_dist,p_cha_wc1,p_cha_wc23,p_cha_we,p_cha_wr,p_cha_thre,p_la_bottom,p_la_top)
         else: #if gray
             # print("gray")
@@ -78,9 +78,9 @@ def setPara(dataMgr, gray, shape):
             pa.p_gd_we = 2.2
             pa.p_gd_wr = 4
             pa.p_gd_thre = 25
-            pa.p_wth_thre  = 20
-            pa.p_wth_area  = 10
-            pa.p_wth_grad  = 1.5
+            pa.p_wth_thre  = 10
+            pa.p_wth_area  = 5
+            pa.p_wth_grad  = 75
             # dataMgr.para = (p_seg_color,p_seg_dist,p_cha_wc1,p_cha_wc23,p_cha_we,p_cha_wr,p_cha_thre,p_la_bottom,p_la_top)
         
 def processFile(data, test = False):
@@ -131,46 +131,6 @@ def processFile(data, test = False):
         mergeLittleRegion(dataMgr)
         # out2 = dataMgr.region_copy()
         print("Little region merge time:\t--- %8.4f seconds ---" % (time.time() - start_time))
-        oc.append(toMean(dataMgr,False))
-        oce.append(toMean(dataMgr,True))
-
-        # ------------------------------------- #
-        # ---- print chara 2                --- #
-        reg1,reg2 = getChara2(dataMgr.Cdata, dataMgr.para)
-        reg_f = imglib.addArrayCol(reg1,0)+imglib.addArrayCol(reg2,1)
-        oc.append(imglib.charaToImg(reg_f,inv=True))
-        # oce.append(np.zeros(dataMgr.data.shape))
-        # ------------------------------------- #
-        # ---- merge Chara2                 --- #
-        start_time = time.time()
-        mergeRegion_A_2(dataMgr)
-        print("Merge2 time:\t\t\t--- %8.4f seconds ---" % (time.time() - start_time))
-        # oc.append(toMean(dataMgr,False))
-        oce.append(toMean(dataMgr,True))
-        # ------------------------------------- #
-        # ---- print chara 3                --- #
-        reg1,reg2 = getChara3(dataMgr)
-        reg_f = imglib.addArrayCol(reg1,0)+imglib.addArrayCol(reg2,1)
-        m_grad = dataMgr.getMeanGrad()
-        oc.append(imglib.charaToImg(reg_f,inv=True))
-        oce.append(imglib.charaToImg(m_grad,inv=True))
-        # ------------------------------------- #
-        # ---- merge Chara3                 --- #
-        start_time = time.time()
-        mergeRegion_AG_3(dataMgr)
-        print("Merge3 time:\t\t\t--- %8.4f seconds ---" % (time.time() - start_time))
-        oc.append(toMean(dataMgr,False))
-        oce.append(toMean(dataMgr,True))
-        # oc.append(toMean(dataMgr,False))
-        # oce.append(toMean(dataMgr,True))
-    else:
-        # ------------------------------------- #
-        # ---- little region delete         --- #
-        # p_cha_thre = 16
-        start_time = time.time()
-        mergeLittleRegion(dataMgr)
-        # out2 = dataMgr.region_copy()
-        print("Little region merge time:\t--- %8.4f seconds ---" % (time.time() - start_time))
         # oc.append(toMean(dataMgr,False))
         # oce.append(toMean(dataMgr,True))
 
@@ -208,6 +168,52 @@ def processFile(data, test = False):
         print("Merge31 time:\t\t\t--- %8.4f seconds ---" % (time.time() - start_time))
         oc.append(toMean(dataMgr,False))
         oce.append(toMean(dataMgr,True))
+    else:
+        print(np.mean(dataMgr.grad))
+        # # ------------------------------------- #
+        # # ---- little region delete         --- #
+        # # p_cha_thre = 16
+        # start_time = time.time()
+        # mergeLittleRegion(dataMgr)
+        # # out2 = dataMgr.region_copy()
+        # print("Little region merge time:\t--- %8.4f seconds ---" % (time.time() - start_time))
+        # # oc.append(toMean(dataMgr,False))
+        # # oce.append(toMean(dataMgr,True))
+
+        # # ------------------------------------- #
+        # # ---- print chara 2                --- #
+        # reg1,reg2 = getChara2(dataMgr.Cdata, dataMgr.para)
+        # reg_f = imglib.addArrayCol(reg1,0)+imglib.addArrayCol(reg2,1)
+        # oc.append(imglib.charaToImg(reg_f,inv=True))
+        # # oce.append(np.zeros(dataMgr.data.shape))
+        # # ------------------------------------- #
+        # # ---- merge Chara2                 --- #
+        # start_time = time.time()
+        # mergeRegion_A_2(dataMgr)
+        # print("Merge2 time:\t\t\t--- %8.4f seconds ---" % (time.time() - start_time))
+        # # oc.append(toMean(dataMgr,False))
+        # oce.append(toMean(dataMgr,True))
+        # # ------------------------------------- #
+        # # ---- print chara 3                --- #
+        # reg1,reg2 = getChara3(dataMgr)
+        # reg_f = imglib.addArrayCol(reg1,0)+imglib.addArrayCol(reg2,1)
+        # m_grad = dataMgr.getMeanGrad()
+        # oc.append(imglib.charaToImg(reg_f,inv=True))
+        # oce.append(imglib.charaToImg(m_grad,inv=True))
+        # # ------------------------------------- #
+        # # ---- merge Chara3                 --- #
+        # start_time = time.time()
+        # mergeRegion_AG_3(dataMgr)
+        # print("Merge3 time:\t\t\t--- %8.4f seconds ---" % (time.time() - start_time))
+        # oc.append(toMean(dataMgr,False))
+        # oce.append(toMean(dataMgr,True))
+        # # ------------------------------------- #
+        # # ---- merge Chara3                 --- #
+        # start_time = time.time()
+        # mergeRegion_AG_31(dataMgr)
+        # print("Merge31 time:\t\t\t--- %8.4f seconds ---" % (time.time() - start_time))
+        # oc.append(toMean(dataMgr,False))
+        # oce.append(toMean(dataMgr,True))
         
 
 

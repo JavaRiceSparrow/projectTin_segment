@@ -544,10 +544,12 @@ def mergeRegion_AG_31(dataMgr):
     mg_r = np.minimum(dataMgr.grad[:,:-1],dataMgr.grad[:,1:])
     mg_r[mg_r==0] = 0.0001
 
+    a_bottom = dataMgr.shape[0]*dataMgr.shape[1]/144.0
+
     # np.ones(dataMgr.shape)*
-    th_d = p_gd_thre / (1+p_gw/np.power(mg_d,0.3)) 
+    th_d = p_gd_thre / (1+p_gw/mg_d)
     # * (1+p_aw/np.sqrt())
-    th_r = p_gd_thre / (1+p_gw/np.power(mg_r,0.3)) 
+    th_r = p_gd_thre / (1+p_gw/mg_r)
 
     # down
     for x in range(size[0]-1):
@@ -558,7 +560,7 @@ def mergeRegion_AG_31(dataMgr):
                 if area==0:
                     print("randomSeg.mergeRegion_A_2: area=0")
 
-                if chara_d[x,y]<=th_d[x,y]*(1+p_aw/np.sqrt(area)):
+                if chara_d[x,y]<=th_d[x,y]*(1+(p_aw-1)*(a_bottom/area)**2):
                     regMgr.mergeRegion((x+1,y),(x,y))
     # right
     for x in range(size[0]):
@@ -568,7 +570,7 @@ def mergeRegion_AG_31(dataMgr):
                 area = min(regMgr.regSumList[i1],regMgr.regSumList[i2])
                 if area==0:
                     print("randomSeg.mergeRegion_A_2: area=0")
-                if chara_r[x,y]<=th_r[x,y]*(1+p_aw/np.sqrt(area)):
+                if chara_r[x,y]<=th_r[x,y]*(1+(p_aw-1)*(a_bottom/area)**2):
                     regMgr.mergeRegion((x,y+1),(x,y))
 
     regMgr.settleRegion()

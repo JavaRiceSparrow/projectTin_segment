@@ -3,3 +3,10 @@
 
 clean little region before merge.
 gradient to mean(g1,g2)
+
+11/4
+
+new datastructure
+LAB
+ridge
+previous week method
