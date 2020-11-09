@@ -79,7 +79,7 @@ def toMean(dataMgr, drawEdge = False, cEdge =  False, alert = True):
         #     continue
         count += 1
     if count > regMgr.idxNum:
-        print("?count out")
+        print("?count out: (",count, ", ",regMgr.idxNum ,").")
         # if np.sum(dataMgr.regionBList[idx]) == 0:
         #     print("?'")
         out[reg] = np.mean(data[reg],axis = 0)
@@ -97,116 +97,7 @@ def toMean(dataMgr, drawEdge = False, cEdge =  False, alert = True):
 
     return out
       
-'''
-def getSimpSegment(data, lamda = 0.2, num = 20, iteration=15):
-    size = data.shape
 
-    posList = []
-    x_arr = np.array([np.array(range(size[0])),]*size[1]).T
-    y_arr = np.array([np.array(range(size[1])),]*size[0])
-    # print(size)
-    
-    r_arr = data[:,:,0]
-    g_arr = data[:,:,1]
-    b_arr = data[:,:,2]
-
-    # decided init center
-    for i in range(num):
-        pos_x,pos_y = random.randint(0,size[0]-1),random.randint(0,size[1]-1)
-        c_r,c_g,c_b = tuple(data[pos_x,pos_y])
-        posList.append((pos_x,pos_y,c_r,c_g,c_b))
-    
-    dists = np.zeros((num,size[0],size[1]))
-    blocks = np.zeros((num,size[0],size[1]), bool)
-
-    recaculate = 0
-    while True:
-        # get dist
-        for i in range(num):
-            (pos_x,pos_y,c_r,c_g,c_b) = posList[i]
-            x_dist = x_arr-pos_x
-            y_dist = y_arr-pos_y
-            r_dist = r_arr-c_r
-            g_dist = g_arr-c_g
-            b_dist = b_arr-c_b
-
-            dists[i] = np.sqrt(np.square(x_dist) + np.square(y_dist) + \
-                lamda*(np.square(r_dist) + np.square(g_dist) + np.square(b_dist)) )
-        # get minimum 
-        dmax = np.amin(dists, axis=0)
-        # get region 
-        for i in range(num):
-            (pos_x,pos_y,c_r,c_g,c_b) = posList[i]
-            blocks[i] = np.equal(dists[i], dmax)
-
-        if recaculate == iteration-1:
-            break
-        recaculate += 1
-        # get new center
-        posList.clear()
-        for i in range(num):
-            block = blocks[i]
-            # print(x_arr.shape)
-            # print(block.shape)
-            pos_x = np.mean(x_arr[block])
-            pos_y = np.mean(y_arr[block])
-            c_r = np.mean(r_arr[block])
-            c_g = np.mean(g_arr[block])
-            c_b = np.mean(b_arr[block])
-            posList.append((pos_x,pos_y,c_r,c_g,c_b))
-    
-    region = np.zeros((size[0],size[1]))
-    for i in range(num):
-        region[blocks[i]] = i+1
-
-    return region
-'''
-
-# ----------------------------------------------------- #
-# Belong to getDFSRegions 
-def getStartNode(region):
-    size = region.shape
-    for i in range(size[0]):
-        for j in range(size[1]):
-            if region[i,j]:
-                return (i,j)
-
-def getRegDFS(region,node,b_list=False, b_area=False):
-    x,y = node
-    value = region[x,y]
-    size = region.shape
-
-    reg2 = np.zeros(region.shape,dtype=bool)
-    reg2[x,y] = True
-    if b_list:
-        reglist = [node]
-    area = 1
-
-    pos_stack=[node]
-    # del node
-    while(len(pos_stack) !=0):
-        node1 = pos_stack.pop()
-        nx,ny = node1
-        nList = nodelib.getNearNode(nx,ny,size[0],size[1])
-        for node2 in nList:
-            if not reg2[node2] and region[node2]==value:
-                pos_stack.append(node2)
-                reg2[node2] = True
-                area+=1
-                if b_list:
-                    regList.append(node2)
-
-        del nList, node1, nx,ny
-    if not b_list:
-        if not area:
-            return reg2
-        else:
-            return reg2, area
-    else:
-        if not area:
-            return reglist
-        else:
-            return reglist, area
 
 # def getDFSRegions(region):
 
@@ -228,42 +119,42 @@ def getRegDFS(region,node,b_list=False, b_area=False):
 #         return False
 #     return True             
 
-def cutScatterRegion(dataMgr, threhold=1):
-    # region = dataMgr.region.space
-    regMgr = dataMgr.regMgr
-    space_copy = dataMgr.region_copy()
+# def cutScatterRegion(dataMgr, threhold=1):
+#     # region = dataMgr.region.space
+#     regMgr = dataMgr.regMgr
+#     space_copy = dataMgr.region_copy()
 
 
-    for i in range(regMgr.idxMax):
-        idx = i+1
-        reg0 = space_copy==idx
-        # print(reg0.shape)
-        if np.sum(reg0)==0:
-            continue
-        regList = getDFSRegions(reg0)
-        if len(regList)==1:
-            if np.sum(reg0) <= threhold:
-                regMgr.labelLittleReg(reg0)
-            continue
-        # reg.space[BList[idx]] = 0
-        # reg.space[regList[0]] = idx
-        # BList[idx] = regList[0]
-        # sumList[idx] = np.sum(regList[0])
-        # reg.mergeLittleReg(idx,threhold)
+#     for i in range(regMgr.idxMax):
+#         idx = i+1
+#         reg0 = space_copy==idx
+#         # print(reg0.shape)
+#         if np.sum(reg0)==0:
+#             continue
+#         regList = getDFSRegions(reg0)
+#         if len(regList)==1:
+#             if np.sum(reg0) <= threhold:
+#                 regMgr.labelLittleReg(reg0)
+#             continue
+#         # reg.space[BList[idx]] = 0
+#         # reg.space[regList[0]] = idx
+#         # BList[idx] = regList[0]
+#         # sumList[idx] = np.sum(regList[0])
+#         # reg.mergeLittleReg(idx,threhold)
 
-        for reg_i in range(1,len(regList)):
-            if not regMgr.cutRegion(idx,regList[reg_i]):
-                print("wee?")
-            if np.sum(regList[reg_i]) <= threhold:
-                regMgr.labelLittleReg(regList[reg_i])
+#         for reg_i in range(1,len(regList)):
+#             if not regMgr.cutRegion(idx,regList[reg_i]):
+#                 print("wee?")
+#             if np.sum(regList[reg_i]) <= threhold:
+#                 regMgr.labelLittleReg(regList[reg_i])
 
-    print("Finished cut")
+#     print("Finished cut")
 
-    chara = getChara2(dataMgr.Cdata, dataMgr.para)
+#     chara = getChara2(dataMgr.Cdata, dataMgr.para)
 
-        # if not testSimpleReg(BList[idx]):
-        #     print("tReg: cut fail.")
-    regMgr.mergeLabelReg(chara,threhold)
+#         # if not testSimpleReg(BList[idx]):
+#         #     print("tReg: cut fail.")
+#     regMgr.mergeLabelReg(chara,threhold)
 
 # Belong to getDFSRegions 
 # ----------------------------------------------------- #
@@ -324,7 +215,6 @@ def mergeRegion(dataMgr,chara_d,chara_r):
                     dataMgr.regMgr.mergeRegion((x,y+1),(x,y))
 
 
-
 def meanmergeRegionAdj(dataMgr, threshold):
     
     data = dataMgr.Cdata
@@ -359,7 +249,6 @@ def meanmergeRegionAdj(dataMgr, threshold):
                 dataMgr.regMgr.mergeRegion((x,y+1),(x,y))
 
 
-
 def getChara2(data,para):
     wc1 = para.p_cha_wc1
     wc23 = para.p_cha_wc23
@@ -385,7 +274,6 @@ def getChara2(data,para):
     diff_d = cdif_d + we*covEdge[:-1] + wr*covRidge[:-1]
     diff_r = cdif_r + we*covEdge[:,:-1] + wr*covRidge[:,:-1]
     return diff_d,diff_r
-
 
 def getChara3(dataMgr):
     # dataMgr.setMeanGradArr()
@@ -478,9 +366,6 @@ def mergeRegion_A_2(dataMgr):
     # TODO
                     
 
-
-
-
 def mergeRegion_AG_3(dataMgr):
     '''
     By area and region param
@@ -546,7 +431,9 @@ def mergeRegion_AG_31(dataMgr):
 
     p_la_bottom = dataMgr.para.p_la_bottom
     p_la_top = dataMgr.para.p_la_top
-    p_gd_thre = dataMgr.para.p_gd_thre
+    p_gd_thre = dataMgr.para.p_wth_thre  
+    p_aw = dataMgr.para.p_wth_area   
+    p_gw = dataMgr.para.p_wth_grad    
 
     data = dataMgr.Cdata
     size = dataMgr.shape
@@ -558,7 +445,16 @@ def mergeRegion_AG_31(dataMgr):
     l_a = p_gd_thre
 
     mg_d = np.minimun(dataMgr.grad[:-1],dataMgr.grad[1:])
+    mg_d[mg_d==0] = 0.0001
     mg_r = np.minimun(dataMgr.grad[:,:-1],dataMgr.grad[:,1:])
+    mg_r[mg_r==0] = 0.0001
+
+    a_bottom = dataMgr.shape[0]*dataMgr.shape[1]/144.0
+
+    # np.ones(dataMgr.shape)*
+    th_d = p_gd_thre / (1+p_gw/mg_d)
+    # * (1+p_aw/np.sqrt())
+    th_r = p_gd_thre / (1+p_gw/mg_r)
 
     # down
     for x in range(size[0]-1):
@@ -567,8 +463,7 @@ def mergeRegion_AG_31(dataMgr):
                 area = min(regMgr.areaMat[x+1,y],regMgr.areaMat[x,y])
                 if area==0:
                     print("randomSeg.mergeRegion_A_2: area=0")
-
-                if chara_d[x,y]-l_a*areaChara(area,p_la_bottom,p_la_top)<=p_gd_thre-1/mg_d:
+                if chara_d[x,y]<=th_d[x,y]*(1+(p_aw-1)*(a_bottom/area)**2):
                     regMgr.mergeRegion((x+1,y),(x,y))
     # right
     for x in range(size[0]):
@@ -577,10 +472,11 @@ def mergeRegion_AG_31(dataMgr):
                 area = min(regMgr.areaMat[x,y+1],regMgr.areaMat[x,y])
                 if area==0:
                     print("randomSeg.mergeRegion_A_2: area=0")
-                if chara_r[x,y]-l_a*areaChara(area,p_la_bottom,p_la_top)<=p_gd_thre-1/mg_r:
+                if chara_r[x,y]<=th_r[x,y]*(1+(p_aw-1)*(a_bottom/area)**2):
                     regMgr.mergeRegion((x,y+1),(x,y))
 
     regMgr.settleRegion()
+
 
 def mergeLittleRegion(dataMgr):
     threhold = dataMgr.para.p_la_bottom
@@ -588,42 +484,6 @@ def mergeLittleRegion(dataMgr):
     chara0 = toMean(dataMgr)
     chara = np.sum(abs(chara0[:-1]-chara0[1:]),axis=2),np.sum(abs(chara0[:,:-1]-chara0[:,1:]),axis=2)
     size = dataMgr.shape
-
-    # for i in range(regMgr.idxMax):
-    #     idx = i+1
-    #     if regMgr.regSumList[idx] == 0:
-    #         continue
-    #     while regMgr.regSumList[idx]!=0 and regMgr.regSumList[idx] <= threhold:
-    #     # if regMgr.regSumList[idx] <= threhold:
-    #         reg1 = regMgr.regBoolList[idx]
-    #         edge = nodelib.getInnerFrame(reg1)
-    #         dif_min = 100000
-    #         new_reg_idx = 0
-    #         for x in range(size[0]):
-    #             for y in range(size[1]):
-    #                 if edge[x,y]:
-    #                     # nlist= nodelib.getNearNode(x,y,size[0],size[1])
-    #                     if x!=0 and not reg1[x-1,y] and chara[0][x-1,y]<dif_min:
-    #                         new_reg_idx = regMgr.space[x-1,y]
-    #                         dif_min = chara[0][x-1,y]
-    #                     if y!=0 and not reg1[x,y-1] and chara[1][x,y-1]<dif_min:
-    #                         new_reg_idx = regMgr.space[x,y-1]
-    #                         dif_min = chara[1][x,y-1]
-    #                     if x!=size[0]-1 and not reg1[x+1,y] and chara[0][x,y]<dif_min:
-    #                         new_reg_idx = regMgr.space[x+1,y]
-    #                         dif_min = chara[0][x,y]
-    #                     if y!=size[1]-1 and not reg1[x,y+1] and chara[1][x,y]<dif_min:
-    #                         new_reg_idx = regMgr.space[x,y+1]
-    #                         dif_min = chara[1][x,y]
-            
-    #         if new_reg_idx==0:
-    #             print("? ? ?")
-    #             return
-    #         if dif_min==0:
-    #             print("? ...")
-    #             return
-    #         if not regMgr.mergeRegion(idx,new_reg_idx):
-    #             print("The same reg!..." )
 
     for x0 in range(regMgr.shape[0]):
         for y0 in range(regMgr.shape[1]):
@@ -654,9 +514,9 @@ def mergeLittleRegion(dataMgr):
                 if new_reg_idx==0:
                     print("? ? ?")
                     return
-                if dif_min==0:
-                    print("? ...")
-                    return
+                # if dif_min==0:
+                #     print("? ...")
+                #     return
                 if not regMgr.mergeRegion(idx,new_reg_idx):
                     print("The same reg!..." )
 
@@ -676,6 +536,7 @@ def getLargeSegment(dataMgr, num = 1000, move_step = 4, killTinyReg = False):
     '''
     p_seg_color=dataMgr.para.p_seg_color
     p_seg_dist=dataMgr.para.p_seg_dist
+    p_reg_threhold = dataMgr.para.p_la_bottom
 
     size = dataMgr.shape
     region = dataMgr.regMgr.space.copy()
@@ -786,18 +647,31 @@ def getLargeSegment(dataMgr, num = 1000, move_step = 4, killTinyReg = False):
                     region[x,y] = i+1
 
     region_visited = np.zeros(size[0:2], dtype = bool)
+    
     for i in range( size[0]):
         for j in range(size[1]):
             if region_visited[i,j]:
                 continue
-            reg1 = getRegDFS(region, (i,j))
-            region_visited[reg1] = True
+            reg1, r_area1 = getRegDFS(region, (i,j),True,True)
+            for pos1 in reg1:
+                region_visited[pos1] = True
             
-            dataMgr.regMgr.addRegion(reg1) #np.zeros((size[0],size[1]),bool)
-    
-
-
-    dataMgr.settleRegion()
+            if killTinyReg and r_area1<=p_reg_threhold:
+                dataMgr.regMgr.labelLittleReg(reg1)
+                # else:
+                #     dataMgr.regMgr.addRegion(reg1) #np.zeros((size[0],size[1]),bool)
+            else:
+                dataMgr.regMgr.addRegion(reg1)
+    chara = getChara2(dataMgr.Cdata,dataMgr.para)
+    if killTinyReg:
+        dataMgr.regMgr.mergeLabelReg(chara,p_reg_threhold)
+    # print('test1')
+    # print(dataMgr.regMgr.vertifyFull())
+    # print(dataMgr.regMgr.vertifyArea())
+    dataMgr.regMgr.settleRegion()
+    # print('test2')
+    # print(dataMgr.regMgr.vertifyFull())
+    # print(dataMgr.regMgr.vertifyArea())
     return region
 
 

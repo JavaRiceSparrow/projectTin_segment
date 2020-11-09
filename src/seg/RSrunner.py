@@ -53,7 +53,7 @@ def setPara(dataMgr, gray, shape):
             pa.p_cha_we = 1.2
             pa.p_cha_wr = 1.0
             pa.p_cha_thre = 15
-            pa.p_la_bottom = 64
+            pa.p_la_bottom = min(64,dataMgr.getarea()/1600)
             pa.p_la_top = int(max(400,max(dataMgr.shape[0],dataMgr.shape[1])/10.0*4,dataMgr.shape[0]*dataMgr.shape[1]/1600))
             pa.p_gd_pow = 0.5
             pa.p_gd_we = 2.0
@@ -87,7 +87,7 @@ def processFile(data, test = False):
     param = dataMgr.para
     setPara(dataMgr,imglib.isGray(data), dataMgr.shape )
     start_time = time.time()
-    getLargeSegment(dataMgr, 1000,killTinyReg=False) ## TODO
+    getLargeSegment(dataMgr, 1000,killTinyReg=True) ## TODO
     output0 = dataMgr.region_copy()
     if np.mean(output0)!=np.mean(dataMgr.regMgr.space):
         print("Wrong!")
@@ -201,7 +201,7 @@ def processFile(data, test = False):
 
 
     # ===================================== #
-    print("Region num:\t\t\t--- %8d regions ---" %(dataMgr.region.regNum ))
+    print("Region num:\t\t\t--- %8d regions ---" %(dataMgr.regMgr.idxNum ))
     outRow1 = imglib.mergeArray(tuple(oc),axis=1, interval=20)
     outRow2 = imglib.mergeArray(tuple(oce),axis=1, interval=20)
     # out2 = imglib.mergeArray(tuple(list2),axis=1, interval=20)

@@ -6,7 +6,8 @@
 4: 10.gif, black,  fighter
 5: 11.gif, black,  bike&wall
 
-122: lena_gray.bmp
+
+122 lena_gray.bmp Big!
 
 
  ----- black, simp ----- 
@@ -21,6 +22,7 @@
 114: flag2.jpg
 116: fruits1.bmp
 
+120 lena_128.bmp 
 132 planets.bmp
 
 64 FreshFruitVegetablegray.jpg
@@ -35,9 +37,6 @@
 72: LEAF.JPG 
 93:                  fighter
 
-122 lena_gray.bmp Big!
-
-120 lena_128.bmp 
 
 
  ----- color, simp ----- 
