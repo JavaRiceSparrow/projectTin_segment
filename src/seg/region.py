@@ -23,7 +23,7 @@ def getRegDFS(region,node,b_list=False, b_area=False):
     reg2[x,y] = True
     if b_list:
         regList = [node]
-    area = 1
+    area = 0
 
     pos_stack=[node]
     # del node
@@ -31,11 +31,11 @@ def getRegDFS(region,node,b_list=False, b_area=False):
         node1 = pos_stack.pop()
         nx,ny = node1
         nList = nodelib.getNearNode(nx,ny,size[0],size[1])
+        area+=1
         for node2 in nList:
             if not reg2[node2] and region[node2]==value:
                 pos_stack.append(node2)
                 reg2[node2] = True
-                area+=1
                 if b_list:
                     regList.append(node2)
 
@@ -46,7 +46,6 @@ def getRegDFS(region,node,b_list=False, b_area=False):
         else:
             return reg2, area
     else:
-        # print(regList)
         if not b_area:
             return regList
         else:
@@ -100,6 +99,7 @@ class dataParam(object):
     p_la_top : little area merge up
     '''
     def __init__(self):
+        
         self.p_seg_color    = 4
         self.p_seg_dist     = 0.5
         self.p_cha_wc1      = 1
@@ -107,12 +107,15 @@ class dataParam(object):
         self.p_cha_we       = 0.8
         self.p_cha_wr       = 1
         self.p_cha_thre     = 15
-        self.p_la_bottom = 0
-        self.p_la_top    = 0
+        self.p_la_bottom    = 0
+        self.p_la_top       = 0
         self.p_gd_we        = 0
         self.p_gd_wr        = 0
         self.p_gd_pow       = 0
-        self.pa.p_gd_thre   = 0
+        self.p_gd_thre      = 0
+        self.p_wth_thre     = 0
+        self.p_wth_area     = 0
+        self.p_wth_grad     = 0
 
         # self.p_seg = {'w_color' : 4,'w_dist' : 0.5}
         # self.p_chara = {'w_c1' : 1, 'w_c23' : 1*4, 'w_edge' : 0.8, 'w_ridge' : 1, 'threhold' : 15}
@@ -129,7 +132,9 @@ class RegionMgr(object):
         # self.areaList = []
         self.idxNum = 0
         self.idxMax = 0
-
+        self.mergecount = 0
+    def getRegArea(self,pos):
+        return self.areaList[self.space[pos]]
 
     def addRegion(self, regList):
         # if region.dtype != bool:
@@ -147,7 +152,7 @@ class RegionMgr(object):
             self.space[pos] = self.idxMax
             # self.areaMat[pos] = r_sum
         if len(self.areaList)-1 != self.idxMax:
-            print("??")
+            print("\"region.RegionMgr.addRegion\": Region is not in tail.(?)")
 
         # region
         return True
@@ -190,24 +195,23 @@ class RegionMgr(object):
             idx2 = self.space[x2,y2]
         if idx1 == idx2:
             return False
-        reg1 = self.getRegion(pos1,True)
-        reg2 = self.getRegion(pos2,True)
-        # print(reg1[0])
         a1 = self.areaList[idx1]
         a2 = self.areaList[idx2]
         # TODO
         if a1 < a2:
+            reg1 = self.getRegion(pos1,True)
             for pos1 in reg1:
                 self.space[pos1] = idx2
-                self.areaList[idx1] = 0
-            # for pos2 in reg2:
-            self.areaList[idx1] = a1+a2   
+            self.areaList[idx1] = 0
+            self.areaList[idx2] = a1+a2   
+            self.mergecount += a1
         else:
+            reg2 = self.getRegion(pos2,True)
             for pos2 in reg2:
                 self.space[pos2] = idx1
-                self.areaMat[pos2] = a1+a2
-            for pos1 in reg1:
-                self.areaMat[pos1] = a1+a2 
+            self.areaList[idx1] = a1+a2
+            self.areaList[idx2] = 0
+            self.mergecount += a2
                  
             
         self.idxNum -= 1
@@ -215,28 +219,46 @@ class RegionMgr(object):
 
     def settleRegion(self):
         return 
+        pass
         if not self.vertifyFull():
             print("??? ??")
-        numList = np.zeros([self.idxMax], dtype=bool)
+        if not self.vertifyArea():
+            print("??? ???")
+        # numList = np.zeros([self.idxMax], dtype=bool)
         idxList = np.zeros([self.idxMax], dtype=bool)
+        # for i in range(self.shape[0]):
+        #     for j in range(self.shape[1]):
+        #         idx = self.space[i,j]
+        #         numList[idx-1] = 1
+        # idx = 0
+        nidx = 0
+        for idx in range(self.idxMax):
+            if self.areaList[idx+1]>0:
+                nidx += 1
+                idxList[idx] = nidx
+                self.areaList[nidx] = self.areaList[idx+1]
+        self.areaList = self.areaList[:nidx+1]
+        self.idxMax = self.idxNum = nidx
+            # idx += 1
+
+        # for i in range(len(numList)):
+        #     if numList[i]:
+        #         idx = idx+1
+        #         idxList[i] = idx
         for i in range(self.shape[0]):
             for j in range(self.shape[1]):
                 idx = self.space[i,j]
-                numList[idx-1] = 1
-        idx = 0
-        for i in range(len(numList)):
-            if numList[i]:
-                idx = idx+1
-                idxList[i] = idx
-        for i in range(self.shape[0]):
-            for j in range(self.shape[1]):
-                idx = self.space[i,j]
+                if idxList[idx-1]<=0:
+                    print("?_?")
+                    return
                 self.space[i,j] = idxList[idx-1]
+        
 
         
-                # TODO
+        self.vertifyFull()
+        self.vertifyArea()
 
-    def getRegion(self, pos, b_list=False):
+    def getRegion(self, pos, b_list=True):
         # x,y = pos
         
         return getRegDFS(self.space, pos, b_list=b_list)
@@ -244,7 +266,8 @@ class RegionMgr(object):
     def vertifyFull(self):
         if np.min(self.space)==0:
             return False
-        if np.min(self.areaMat)==0:
+        if np.sum(self.areaList[1:])!=self.shape[0]*self.shape[1]:
+            print("Area not full: ", np.sum(self.areaList[1:]),"/",self.shape[0]*self.shape[1])
             return False
 
         return True
@@ -255,10 +278,33 @@ class RegionMgr(object):
             for j in range(self.shape[1]):
                 if not visited[i,j]:
                     rlist, area = getRegDFS(self.space, (i,j), b_list=True, b_area=True)
-                    if area!=self.areaMat[rlist[0]]:
+                    idx = self.space[i,j]
+                    if area!=self.areaList[idx]:
+                        print(self.space)
+                        print(area, ", ",self.areaList[idx])
                         return False
                     for pos in rlist:
                         visited[pos] = True
+
+        return True
+
+    def vertifyCount(self):
+        count = 0
+        region_visited = np.zeros(self.shape,dtype=bool)
+        for i in range( size_x):
+            for j in range(size_y):
+                if region_visited[i,j]:
+                    continue
+                # idx = regMgr.space[i,j]
+                reg = regMgr.getRegion((i,j))
+                for pos in reg:
+                    region_visited[pos] = True
+                # if np.sum(reg)==0:
+                #     continue
+                count += 1
+        if count != self.idxNum:
+            return False
+        # TODO
 
         return True
 
@@ -291,16 +337,11 @@ class RegionMgr(object):
                 if chara[1][pos_f]<dif_min:
                     new_reg_pos = pos_o
                     dif_min = chara[1][pos_f]
-            # else:
-            #     print(pos_i, ", ", pos_o)
 
         
             if new_reg_pos == 0:
-                print("? ? ?")
+                print("findNearReg fail...")
                 return
-            # if dif_min==0:
-            #     print("? ...")
-            #     return
         return new_reg_pos
     
     def mergeLabelReg(self, chara, threhold):
@@ -315,7 +356,6 @@ class RegionMgr(object):
             for j in range(self.shape[1]):
                 if not reg[i,j]:
                     continue
-                # print(i,", ",j)
                 rList1 = getRegDFS(reg,(i,j),True)
                 old_reg_pos = rList1[0]
                 self.delRegion(old_reg_pos)
@@ -395,13 +435,14 @@ class DataMgr(object):
         # nodelib.getGradient(cy_arr)
         self.grad = np.abs(cy_arr) + np.sqrt(p_seg_color)*(np.abs(cb_arr)+np.abs(cr_arr))
     def getMeanGrad(self):
-        # if not self.regMgr.vertifyRegion():
-        #     # print("?_?_?_?")
-        #     pass
+        if not self.regMgr.vertifyFull():
+            print('Region is not full!!!')
+            return 0
+
         self.meanGrad = np.ones(self.shape,dtype = float)*-1.0
         for i in range(self.shape[0]):
             for j in range(self.shape[1]):  
-                if self.meanGrad[i,j]!=-1:
+                if self.meanGrad[i,j]==-1:
                     
                     reg = self.regMgr.getRegion((i,j),True)
                     grad_sum = 0
@@ -410,14 +451,12 @@ class DataMgr(object):
                     grad_mean = grad_sum/len(reg)
                     for pos in reg:
                         self.meanGrad[pos] = grad_mean
-
-        if np.min(self.meanGrad)==-1:
+        if np.min(self.meanGrad)<0:
             print('Region is not full!!!')
             return 0
         # return self.regMgr.IntMatrix[x,y]
         return self.meanGrad
 
-    # def settleRegion(self):
 
 
     

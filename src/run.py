@@ -50,7 +50,7 @@ import time
 
 inpathHead = "Pic/"
 outpathHead = "output/ranSeg2/1106/"
-runhead = "r1_"
+runhead = "r6_"
 testhead = "t1_"
 # pathnames = [f for f in os.listdir(in_path) if os.path.isfile(os.path.join(in_path, f))]
 pathnames = list1
@@ -62,20 +62,26 @@ pathnames = list1
 
 
 # '''
-def testFile(path_name):
+def testFile(path_names):
+    outList = []
+    for path_name in path_names:
     
-    in_path = inpathHead + path_name
-    # out_path = outpathHead + path_name
-    out_path = outpathHead + testhead + path_name + ".gif"
-    
-    # lamda = 2
-    data = imglib.getImg(in_path, to_3d=True)
-    data_zero = data*0
-    if type(data) == None:
-        print("\""+in_path+"\" error!")
-        return
-    print("Image "+in_path+" ...")
-    out = RSrunner.processFile(data,test=True)
+        in_path = inpathHead + path_name
+        # out_path = outpathHead + path_name
+        out_path = outpathHead + testhead + path_name + ".gif"
+        
+        # lamda = 2
+        data = imglib.getImg(in_path, to_3d=True)
+        data_zero = data*0
+        if type(data) == None:
+            print("\""+in_path+"\" error!")
+            return
+        print("Image "+in_path+" ...")
+        out = RSrunner.processFile(data,test=True)
+        outList.append(out)
+
+    out_path = outpathHead + testhead + "total" + ".gif"
+    total_out = imglib.mergeArray(tuple(outList),axis=0)
     print("Save as "+out_path+" ...")
     imglib.saveImg(out,out_path)
     
@@ -121,13 +127,14 @@ def main(argv=None):
             return 0
         if argv[1] == '-test':
             if argLen >= 3:
+                input_pathnames = []
                 for i in range(2,argLen):
                     n = int(argv[i] )
                     if n>=len(pathnames):
                         print("Out of range ",len(pathnames)," !")
                     else:
-                        path_name = pathnames[n]
-                    testFile(path_name)
+                        input_pathnames.append(pathnames[n])
+                testFile(input_pathnames)
             return 0
         
         elif argv[1] == '-a':
