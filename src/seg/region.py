@@ -118,9 +118,29 @@ class dataParam(object):
         self.p_wth_grad     = 0
 
         # self.p_seg = {'w_color' : 4,'w_dist' : 0.5}
-        # self.p_chara = {'w_c1' : 1, 'w_c23' : 1*4, 'w_edge' : 0.8, 'w_ridge' : 1, 'threhold' : 15}
+        # self.p_chara = {'w_c1' : 1, 'w_c23' : 1*4, 'w_edge' : 0.8, 'w_ridge' : 1, 'threshold' : 15}
         # self.p_mergeArea = {'bottom' : 0, 'top':0}
-        # self.p_grad = {'weight': 0,"pow" :0, 'threhold' : 0}
+        # self.p_grad = {'weight': 0,"pow" :0, 'threshold' : 0}
+    def get_cha(self):
+        '''
+        return (self.p_cha_wc1, self.p_cha_wc23, self.p_cha_we, self.p_cha_wr)
+        '''
+        return (self.p_cha_wc1, self.p_cha_wc23, self.p_cha_we, self.p_cha_wr)
+    def get_la(self):
+        '''
+        return (self.p_la_bottom, self.p_la_top)
+        '''
+        return (self.p_la_bottom, self.p_la_top)
+    def get_gd(self):
+        '''
+        return (self.p_gd_we, self.p_gd_wr, self.p_gd_pow, self.p_gd_thre)
+        '''
+        return (self.p_gd_we, self.p_gd_wr, self.p_gd_pow, self.p_gd_thre)
+    def get_wth(self):
+        '''
+        return (self.p_wth_area, self.p_wth_grad, self.p_wth_thre)
+        '''
+        return (self.p_wth_area, self.p_wth_grad, self.p_wth_thre)
 
 
 class RegionMgr(object):
@@ -334,32 +354,61 @@ class RegionMgr(object):
         return True
         # self.regSumList[idx]=0
     def findNearReg(self, chara, regList, func = False):
+        # if type(regList) != list:
+        #     regList = self.getRegion(regList)
         reg1 = rL2reg(regList, self.shape)
         nlist_i, nlist_o = getEdgeDFS(reg1,regList[0])
         dif_min = 100000
         new_reg_pos = 0
-        for i in range(len(nlist_i)):
-            pos_i = nlist_i[i]
-            pos_o = nlist_o[i]
-            # nlist= nodelib.getNearNode(x,y,size[0],size[1])
-            if pos_i[1]==pos_o[1]:
-                pos_f = (min(pos_i[0],pos_o[0]),pos_i[1])
-                if chara[0][pos_f]<dif_min:
-                    new_reg_pos = pos_o
-                    dif_min = chara[0][pos_f]
-            elif pos_i[0]==pos_o[0]:
-                pos_f = (pos_i[0],min(pos_i[1],pos_o[1]))
-                if chara[1][pos_f]<dif_min:
-                    new_reg_pos = pos_o
-                    dif_min = chara[1][pos_f]
+        if not func:
+            for i in range(len(nlist_i)):
+                pos_i = nlist_i[i]
+                pos_o = nlist_o[i]
+                # nlist= nodelib.getNearNode(x,y,size[0],size[1])
+                if pos_i[1]==pos_o[1]:
+                    pos_f = (min(pos_i[0],pos_o[0]),pos_i[1])
+                    
+                    if chara[0][pos_f]<dif_min:
+                        new_reg_pos = pos_o
+                        dif_min = chara[0][pos_f]
+                elif pos_i[0]==pos_o[0]:
+                    pos_f = (pos_i[0],min(pos_i[1],pos_o[1]))
+                    if chara[1][pos_f]<dif_min:
+                        new_reg_pos = pos_o
+                        dif_min = chara[1][pos_f]
 
+            
+                if new_reg_pos == 0:
+                    print("findNearReg fail...")
+                    return
         
-            if new_reg_pos == 0:
-                print("findNearReg fail...")
-                return
-        return new_reg_pos
+        else:
+            for i in range(len(nlist_i)):
+                pos_i = nlist_i[i]
+                pos_o = nlist_o[i]
+                # nlist= nodelib.getNearNode(x,y,size[0],size[1])
+                # down
+                if pos_i[1]==pos_o[1]:
+                    pos_f = (min(pos_i[0],pos_o[0]),pos_i[1])
+                    cha1 = chara(pos_f,'d')
+                    if cha1<dif_min:
+                        new_reg_pos = pos_o
+                        dif_min = cha1
+                # right
+                elif pos_i[0]==pos_o[0]:
+                    pos_f = (pos_i[0],min(pos_i[1],pos_o[1]))
+                    cha1 = chara(pos_f,'r')
+                    if cha1<dif_min:
+                        new_reg_pos = pos_o
+                        dif_min = cha1
+
+            
+                if new_reg_pos == 0:
+                    print("findNearReg fail...")
+                    return
+        return new_reg_pos, dif_min
     
-    def mergeLabelReg(self, chara, threhold, test=False):
+    def mergeLabelReg(self, chara, threshold, test=False):
 
         reg = (self.space==0)
         if np.sum(reg) !=0:
@@ -386,7 +435,7 @@ class RegionMgr(object):
                     self.space[pos] = 0
                 self.addRegion(rList1)
 
-                if test and len(rList1) <= threhold:
+                if test and len(rList1) <= threshold:
                     new_reg_pos = self.findNearReg(chara, rList1)
                     if type(new_reg_pos)==int:
                         print("region.mergeLabelReg: ???")
@@ -416,7 +465,7 @@ class DataMgr(object):
         self.shape = data.shape[0:2]
         
         self.grad = 0.0
-        self.para = dataParam
+        self.para = dataParam()
 
         self.regMgr = RegionMgr(self.shape[0],self.shape[1])
 
@@ -461,10 +510,24 @@ class DataMgr(object):
         # grad_func = cy_arr + np.sqrt(p_seg_color)*(cb_arr+cr_arr)
         # nodelib.getGradient(cy_arr)
         self.grad = np.abs(cy_arr) + np.sqrt(p_seg_color)*(np.abs(cb_arr)+np.abs(cr_arr))
-    def getMeanGrad(self):
+    def getMeanGrad(self, regList = None):
+        """
+        If regList is None, return matrix meanGrad(array);
+        If regList is passed, return mean gradient value(float).
+        """
+
+        if type(regList) == list:
+            grad_sum = 0
+            for pos in regList:
+                grad_sum += self.grad[pos]
+            grad_mean = grad_sum/len(regList)
+            return grad_mean
+
         if not self.regMgr.vertifyFull():
             print('Region is not full!!!')
             return 0
+        
+
 
         self.meanGrad = np.ones(self.shape,dtype = float)*-1.0
         for i in range(self.shape[0]):

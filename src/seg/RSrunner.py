@@ -112,7 +112,7 @@ def processFile(data, test = False):
         oc.append(toMean(dataMgr,False))
         oce.append(toMean(dataMgr,True,b_gray))    
 
-        # ---- merge Chara2                 --- #
+        # ----previous merge                  --- #
         start_time = time.time()
         meanmergeRegionAdj(dataMgr,0.01)
         # mergeRegionAdj(dataMgr, 0.01)
@@ -121,9 +121,9 @@ def processFile(data, test = False):
         oce.append(toMean(dataMgr,True,b_gray))        
         # # ------------------------------------- #
 
-        # ---- merge Chara2                 --- #
+        # ---- merge Chara2                   --- #
         start_time = time.time()
-        mergeRegionBy2(dataMgr)
+        mergeRegion_A_2(dataMgr)
         print("Merge2 time:\t\t\t--- %8.4f seconds ---" % (time.time() - start_time))
         oc.append(toMean(dataMgr,False))
         oce.append(toMean(dataMgr,True,b_gray))        
