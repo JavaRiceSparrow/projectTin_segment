@@ -13,7 +13,3 @@ LAB                         pass
 ridge                       
 previous week method   
 
-
-findnearList:
-func    X
-use     X

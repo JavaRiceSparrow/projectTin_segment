@@ -109,6 +109,7 @@ class dataParam(object):
         self.p_cha_thre     = 15
         self.p_la_bottom    = 0
         self.p_la_top       = 0
+        self.p_gd_m         = 0
         self.p_gd_we        = 0
         self.p_gd_wr        = 0
         self.p_gd_pow       = 0
@@ -133,9 +134,9 @@ class dataParam(object):
         return (self.p_la_bottom, self.p_la_top)
     def get_gd(self):
         '''
-        return (self.p_gd_we, self.p_gd_wr, self.p_gd_pow, self.p_gd_thre)
+        return (self.p_gd_m, self.p_gd_we, self.p_gd_wr, self.p_gd_pow, self.p_gd_thre)
         '''
-        return (self.p_gd_we, self.p_gd_wr, self.p_gd_pow, self.p_gd_thre)
+        return (self.p_gd_m, self.p_gd_we, self.p_gd_wr, self.p_gd_pow, self.p_gd_thre)
     def get_wth(self):
         '''
         return (self.p_wth_area, self.p_wth_grad, self.p_wth_thre)
@@ -158,7 +159,7 @@ class RegionMgr(object):
     def getRegIdx(self,pos):
         return self.space[pos]
     def copy(self):
-        new_reg = RegionMgr(self.size0,self,size1) 
+        new_reg = RegionMgr(self.shape[0],self.shape[1]) 
         new_reg.space = self.space.copy()
         new_reg.areaList = self.areaList.copy()
         new_reg.idxMax = self.idxMax
@@ -222,10 +223,10 @@ class RegionMgr(object):
             idx1 = pos1
             idx2 = pos2
         else:
-            x1,y1 = pos1
-            x2,y2 = pos2
-            idx1 = self.space[x1,y1]
-            idx2 = self.space[x2,y2]
+            # x1,y1 = pos1
+            # x2,y2 = pos2
+            idx1 = self.space[pos1]
+            idx2 = self.space[pos2]
         if idx1 == idx2:
             return False
         a1 = self.areaList[idx1]
@@ -467,12 +468,37 @@ class DataMgr(object):
         self.grad = 0.0
         self.para = dataParam()
 
-        self.regMgr = RegionMgr(self.shape[0],self.shape[1])
+        self.rmList = [RegionMgr(self.shape[0],self.shape[1])]
+        self.rlPrevList = [-1]
+        self.rmIdx = 0
+        self.regMgr = self.rmList[self.rmIdx]
 
         if DEF_LDATA:
             self.Cdata = self.Ldata
         else:
             self.Cdata = self.Ydata
+
+    def regSet(self, idx):
+        if idx>=0 and idx <len(self.regList):
+            self.rmIdx = idx
+            self.regMgr=self.regList[idx]
+            return True
+
+    def regCopy(self):
+        self.rmList.append(self.rmList[self.rmIdx].copy())
+        self.rlPrevList.append(self.rmIdx)
+    def regAdd(self):
+        self.regCopy()
+        self.rmIdx = len(self.rmList)-1
+        self.regMgr = self.rmList[self.rmIdx]
+    def reg2Prev(self,time=1):
+        if self.rmIdx==0 or time==0:
+            pass
+        self.rmIdx = self.rlPrevList[self.rmIdx]
+        self.regMgr = self.rmList[self.rmIdx]
+        if time>1:
+            self.reg2Prev(time-1)
+
 
 
     

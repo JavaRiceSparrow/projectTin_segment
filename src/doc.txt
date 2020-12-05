@@ -57,6 +57,8 @@ python src/run.py 114 116 103 101 68 133 63
 
 python src/run.py -test 63 68 101 103 114 116 120 126 133 151
 
-python src/run.py  63 68 101 103 114 116 120 126 133 151
+python src/run.py -test 68 
+
+python src/run.py  63 68 101 103 114 116 120 126 133 151 127 90
 
 python src/test1.py

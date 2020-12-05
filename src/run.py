@@ -49,9 +49,9 @@ else:
 import time
 
 inpathHead = "Pic/"
-outpathHead = "output/ranSeg2/1124/"
+outpathHead = "output/ranSeg2/1205/"
 runhead = "r1_"
-testhead = "t1_"
+testhead = "t2_"
 # pathnames = [f for f in os.listdir(in_path) if os.path.isfile(os.path.join(in_path, f))]
 pathnames = list1
 # print(onlyfiles)
@@ -62,26 +62,28 @@ pathnames = list1
 
 
 # '''
-def testFile(path_names):
+def testFile(path_name):
     outList = []
-    for path_name in path_names:
+    # for path_name in path_names:
     
-        in_path = inpathHead + path_name
-        # out_path = outpathHead + path_name
-        out_path = outpathHead + testhead + path_name + ".gif"
+    in_path = inpathHead + path_name
+    # out_path = outpathHead + path_name
+    out_path = outpathHead + testhead + path_name + ".gif"
         
-        # lamda = 2
-        data = imglib.getImg(in_path, to_3d=True)
-        data_zero = data*0
-        if type(data) == None:
-            print("\""+in_path+"\" error!")
-            return
-        print("Image "+in_path+" ...")
-        out = RSrunner.processFile(data,test=True)
-        outList.append(out)
-
-    out_path = outpathHead + testhead + "total" + ".gif"
-    total_out = imglib.mergeArray(tuple(outList),axis=0)
+        
+    # lamda = 2
+    data = imglib.getImg(in_path, to_3d=True)
+    data_zero = data*0
+    if type(data) == None:
+        print("\""+in_path+"\" error!")
+        return
+    print("Image "+in_path+" ...")
+    outs = []
+    start_time = time.time()
+    for i in range(3):
+        outs.append(RSrunner.processFile(data, b_test=True,b_simp=True, b_print=False))
+    out = imglib.mergeArray(tuple(outs), 0, 5)
+    print("Merge all region time:\t\t--- %8.4f seconds ---" % (time.time() - start_time))
     print("Save as "+out_path+" ...")
     imglib.saveImg(out,out_path)
     
@@ -98,6 +100,8 @@ def processFile(path_name):
         return
     print("Image "+in_path+" ...")
     out = RSrunner.processFile(data)
+    if type(out)==type(None):
+        return
     print("Save as "+out_path+" ...")
     imglib.saveImg(out,out_path)
     
@@ -127,14 +131,13 @@ def main(argv=None):
             return 0
         if argv[1] == '-test':
             if argLen >= 3:
-                input_pathnames = []
                 for i in range(2,argLen):
                     n = int(argv[i] )
                     if n>=len(pathnames):
                         print("Out of range ",len(pathnames)," !")
                     else:
-                        input_pathnames.append(pathnames[n])
-                testFile(input_pathnames)
+                        path_name = pathnames[n]
+                    testFile(path_name)
             return 0
         
         elif argv[1] == '-a':
