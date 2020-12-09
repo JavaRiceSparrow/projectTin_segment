@@ -205,32 +205,20 @@ def mergeRegionByFunc(dataMgr,charaFunction, threshold):
         for y in range(size[1]):
             pos1,pos2 = (x,y), (x+1,y)
             if difReg_d[x,y] and charaFunction(pos1,'d')<=threshold:
+                if rMgr.getRegIdx(pos1)==rMgr.getRegIdx(pos2):
+                    continue
                 dataMgr.regMgr.mergeRegion(pos1,pos2)
                 
-                # reg1 = dataMgr.regMgr.getRegion(pos1)
-                # reg2 = dataMgr.regMgr.getRegion(pos2)
-                # rpos1,dmin1 = dataMgr.regMgr.findNearReg(charaFunction,reg1, func = True)
-                # rpos2,dmin2 = dataMgr.regMgr.findNearReg(charaFunction,reg2, func = True)
-                # if dmin1<=dmin2:
-                #     dataMgr.regMgr.mergeRegion(pos1,rpos1)
-                # else:
-                #     dataMgr.regMgr.mergeRegion(pos2,rpos2)
 
 
     for x in range(size[0]):
         for y in range(size[1]-1):
             pos1,pos2 = (x,y), (x,y+1)
             if difReg_r[x,y] and charaFunction((x,y),'r')<=threshold:
+                if rMgr.getRegIdx(pos1)==rMgr.getRegIdx(pos2):
+                    continue
                 dataMgr.regMgr.mergeRegion(pos1,pos2)
 
-                # reg1 = dataMgr.regMgr.getRegion(pos1)
-                # reg2 = dataMgr.regMgr.getRegion(pos2)
-                # rpos1,dmin1 = dataMgr.regMgr.findNearReg(charaFunction,reg1, func = True)
-                # rpos2,dmin2 = dataMgr.regMgr.findNearReg(charaFunction,reg2, func = True)
-                # if dmin1<=dmin2:
-                #     dataMgr.regMgr.mergeRegion(pos1,rpos1)
-                # else:
-                #     dataMgr.regMgr.mergeRegion(pos2,rpos2)
     return
 
 def mergeRegionByFunc2(dataMgr,charaFunction, threshold):
@@ -243,37 +231,57 @@ def mergeRegionByFunc2(dataMgr,charaFunction, threshold):
     regions = dataMgr.regMgr.space
     difReg_d = regions[:-1,:] != regions[1:,:]
     difReg_r = regions[:,:-1] != regions[:,1:]
+    # x,y = size
+    if type(threshold)==tuple:
+        th_d , th_r = threshold
+    else:
+        th_d = threshold*np.ones((size[0]-1,size[1]), dtype=float)
+        th_r = threshold*np.ones((size[0],size[1]-1), dtype=float)
 
     for x in range(size[0]-1):
         for y in range(size[1]):
             pos1,pos2 = (x,y), (x+1,y)
-            if difReg_d[x,y] and charaFunction(pos1,'d')<=threshold:
+            if difReg_d[x,y] and charaFunction(pos1,'d')<=th_d[pos1]:
+                if rMgr.getRegIdx(pos1)==rMgr.getRegIdx(pos2):
+                    continue
+                if DEF_TEST:
+                    print("detect ",pos1,",",pos2)
                 # dataMgr.regMgr.mergeRegion(pos1,pos2)
                 
-                reg1 = dataMgr.regMgr.getRegion(pos1)
-                reg2 = dataMgr.regMgr.getRegion(pos2)
-                rpos1,dmin1 = dataMgr.regMgr.findNearReg(charaFunction,reg1, func = True)
-                rpos2,dmin2 = dataMgr.regMgr.findNearReg(charaFunction,reg2, func = True)
-                if dmin1<=dmin2:
-                    dataMgr.regMgr.mergeRegion(pos1,rpos1)
-                else:
-                    dataMgr.regMgr.mergeRegion(pos2,rpos2)
+                reg1 = rMgr.getRegion(pos1)
+                # reg2 = dataMgr.regMgr.getRegion(pos2)
+                rpos1,dmin1 = rMgr.findNearReg(charaFunction,reg1, func = True)
+                # rpos2,dmin2 = dataMgr.regMgr.findNearReg(charaFunction,reg2, func = True)
+                dataMgr.regMgr.mergeRegion(pos1,rpos1)
+                if DEF_TEST:
+                    print("merge ",pos1,",",rpos1)
+                # if dmin1<=dmin2:
+                #     dataMgr.regMgr.mergeRegion(pos1,rpos1)
+                # else:
+                #     dataMgr.regMgr.mergeRegion(pos2,rpos2)
 
 
     for x in range(size[0]):
         for y in range(size[1]-1):
             pos1,pos2 = (x,y), (x,y+1)
-            if difReg_r[x,y] and charaFunction((x,y),'r')<=threshold:
+            if difReg_r[x,y] and charaFunction((x,y),'r')<=th_r[pos1]:
+                if rMgr.getRegIdx(pos1)==rMgr.getRegIdx(pos2):
+                    continue
+                if DEF_TEST:
+                    print("detect ",pos1,",",pos2)
                 # dataMgr.regMgr.mergeRegion(pos1,pos2)
 
                 reg1 = dataMgr.regMgr.getRegion(pos1)
-                reg2 = dataMgr.regMgr.getRegion(pos2)
+                # reg2 = dataMgr.regMgr.getRegion(pos2)
                 rpos1,dmin1 = dataMgr.regMgr.findNearReg(charaFunction,reg1, func = True)
-                rpos2,dmin2 = dataMgr.regMgr.findNearReg(charaFunction,reg2, func = True)
-                if dmin1<=dmin2:
-                    dataMgr.regMgr.mergeRegion(pos1,rpos1)
-                else:
-                    dataMgr.regMgr.mergeRegion(pos2,rpos2)
+                # rpos2,dmin2 = dataMgr.regMgr.findNearReg(charaFunction,reg2, func = True)
+                dataMgr.regMgr.mergeRegion(pos1,rpos1)
+                if DEF_TEST:
+                    print("merge ",pos1,",",rpos1)
+                # if dmin1<=dmin2:
+                #     dataMgr.regMgr.mergeRegion(pos1,rpos1)
+                # else:
+                #     dataMgr.regMgr.mergeRegion(pos2,rpos2)
     return
 
 
@@ -389,6 +397,8 @@ def getChara3(dataMgr):
 
     grad = dataMgr.getMeanGrad()
     grad[grad<1] = 1
+        # print("grad mean: ",np.mean(grad))
+        # print("grad min: ",np.min(grad))
     grad_d = (grad[0:-1]+grad[1:])/2.0
     grad_r = (grad[:,0:-1]+grad[:,1:])/2.0
     # grad_d[grad_d==0] = 1E-6
@@ -412,7 +422,7 @@ def mergeRegionBy2(dataMgr):
         dataMgr.para.p_cha_we, dataMgr.para.p_cha_wr )
     
     diff_d,diff_r = getChara2(data,para)
-    mergeRegionByChara(dataMgr,diff_d,diff_r, dataMgr.para.p_cha_thre)
+    mergeRegionDirect(dataMgr, diff_d, diff_r, dataMgr.para.p_cha_thre)
 
 
 # ----------------------\
@@ -421,7 +431,7 @@ def areaChara(area,p_la_bottom, p_la_top):
         return 1
     if area>=p_la_top:
         return 0
-    return ((area-p_la_bottom)/(p_la_top-p_la_bottom))**0.5
+    return ((area-p_la_bottom)/(p_la_top-p_la_bottom)) #**0.8
 def mergeRegion_A_2(dataMgr,areaIdx=1):
 
     # mergeRegionAdj(dataMgr, 2)
@@ -431,7 +441,7 @@ def mergeRegion_A_2(dataMgr,areaIdx=1):
     data = dataMgr.Cdata
     para = dataMgr.para.get_cha()
     chara_d,chara_r = getChara2(data,para, c_re_depart=False)
-
+    areaMean = dataMgr.regMgr.getAreaMean()
     # regions = dataMgr.regMgr.space
     regMgr = dataMgr.regMgr
     
@@ -440,10 +450,16 @@ def mergeRegion_A_2(dataMgr,areaIdx=1):
         x,y = pos
         if dire == 'd':
             area = min(regMgr.getRegArea((x+1,y)),regMgr.getRegArea((x,y)))
-            return chara_d[x,y]*(1-areaChara(area,p_la_bottom,p_la_top))
+            pp_a=(area/areaMean)**1.4
+            if pp_a>1:
+                pp_a=1
+            return chara_d[x,y]*(1-areaChara(area,p_la_bottom,p_la_top))*pp_a
         elif dire == 'r':
             area = min(regMgr.getRegArea((x,y+1)),regMgr.getRegArea((x,y)))
-            return chara_r[x,y]*(1-areaChara(area,p_la_bottom,p_la_top))
+            pp_a=(area/areaMean)**1.4
+            if pp_a>1:
+                pp_a=1
+            return chara_r[x,y]*(1-areaChara(area,p_la_bottom,p_la_top))*pp_a
         else:
             print("mergeRegion_A_2: dire wrong!")
             return False
@@ -469,7 +485,7 @@ def mergeRegion_A_2(dataMgr,areaIdx=1):
     # TODO
                     
 
-def mergeRegion_AG_3(dataMgr,areaIdx=1):
+def mergeRegion_AG_3(dataMgr,areaIdx=1, mergeType=1):
     '''
     By area and region param
     Using chara3 (which consider meanGrad)
@@ -489,12 +505,18 @@ def mergeRegion_AG_3(dataMgr,areaIdx=1):
         x,y = pos
         if dire == 'd':
             area = min(regMgr.getRegArea((x+1,y)),regMgr.getRegArea((x,y)))
-            ch = chara_d[x,y]*(1-areaChara(area,p_la_bottom,p_la_top))
+            pp_a=(area/p_la_bottom)**0.7
+            if pp_a>1:
+                pp_a=1
+            ch = chara_d[x,y]*pp_a
             # print(ch)
             return ch
         elif dire == 'r':
             area = min(regMgr.getRegArea((x,y+1)),regMgr.getRegArea((x,y)))
-            ch = chara_r[x,y]*(1-areaChara(area,p_la_bottom,p_la_top))
+            pp_a=(area/p_la_bottom)**0.7
+            if pp_a>1:
+                pp_a=1
+            ch = chara_r[x,y]*pp_a
             # print(ch)
             return ch
         else:
@@ -502,107 +524,92 @@ def mergeRegion_AG_3(dataMgr,areaIdx=1):
             return False
 
     threshold = dataMgr.para.p_gd_thre
-    mergeRegionByFunc(dataMgr,getFunChara,threshold)
-
-    # for x in range(size[0]-1):
-    #     for y in range(size[1]):
-    #         if difReg_d[x,y] :
-    #             area = min(regMgr.getRegArea((x+1,y)),regMgr.getRegArea((x,y)))
-    #             if area==0:
-    #                 print("randomSeg.mergeRegion_A_2: area=0")
-
-    #             if chara_d[x,y]-l_a*areaChara(area,p_la_bottom,p_la_top)<=p_gd_thre:
-    #                 regMgr.mergeRegion((x+1,y),(x,y))
-
-    # for x in range(size[0]):
-    #     for y in range(size[1]-1):
-    #         if difReg_r[x,y]:
-    #             area = min(regMgr.getRegArea((x,y+1)),regMgr.getRegArea((x,y)))
-    #             if area==0:
-    #                 print("randomSeg.mergeRegion_A_2: area=0")
-    #             if chara_r[x,y]-l_a*areaChara(area,p_la_bottom,p_la_top)<=p_gd_thre:
-    #                 regMgr.mergeRegion((x,y+1),(x,y))
+    if mergeType ==1:
+        mergeRegionByFunc(dataMgr,getFunChara,threshold)
+    elif mergeType==2:
+        mergeRegionByFunc2(dataMgr,getFunChara,threshold)
+    else:
+        print("mergeRegion_AG_3: mergeType wrong!")
 
     regMgr.settleRegion()
                     
 
-def mergeRegion_AG_31(dataMgr):
+def mergeRegion_AG_31(dataMgr,areaIdx=1, mergeType=1):
     '''
     By area and region param
     Using chara3 (which consider meanGrad)
     '''
 
-    p_la_bottom ,p_la_top = dataMgr.para.get_la(2)
-    p_gd_thre = dataMgr.para.p_wth_thre
-    # def areaChara(area,p_la_bottom,p_la_top):
-    #     if area<p_la_bottom:
-    #         return 1
-    #     if area>p_la_top:
-    #         return 0
-    #     return (area-p_la_bottom)/(p_la_top-p_la_bottom)
-    
-    regMgr = dataMgr.regMgr
-    para = (dataMgr.para.p_cha_wc1, dataMgr.para.p_cha_wc23, \
-        dataMgr.para.p_cha_we, dataMgr.para.p_cha_wr )
-    chara_d,chara_r = getChara3(dataMgr)
 
-    p_aw = dataMgr.para.p_wth_area   
-    p_gw = dataMgr.para.p_wth_grad    
+    regions = dataMgr.regMgr.space
+    regMgr = dataMgr.regMgr
+
+    p_la_bottom ,p_la_top = dataMgr.para.get_la(areaIdx)
+    # print(p_la_bottom ,p_la_top)
+
+    # para = (dataMgr.para.p_cha_wc1, dataMgr.para.p_cha_wc23, \
+    #     dataMgr.para.p_cha_we, dataMgr.para.p_cha_wr )
+    chara_d,chara_r = getChara2(dataMgr.Cdata, dataMgr.para.get_cha())
+
+
+    # p_aw = dataMgr.para.p_wth_area   
+    p_gw = dataMgr.para.p_wth_grad 
+    p_gd_thre = dataMgr.para.p_gd_thre   
 
     l_a = p_gd_thre
 
-    mg_d = np.minimum(dataMgr.grad[:-1],dataMgr.grad[1:])
-    mg_d[mg_d==0] = 0.0001
-    mg_r = np.minimum(dataMgr.grad[:,:-1],dataMgr.grad[:,1:])
-    mg_r[mg_r==0] = 0.0001
+    gd = dataMgr.grad.copy()
+    gd = gd/np.mean(gd)
+    gd[gd==0] = 1E-6
+    gd[gd>1] = 1
+    # gd = np.power(gd,dataMgr.para.p_gd_pow)
+    mg_d = np.minimum(gd[:-1], gd[1:])
+    mg_r = np.minimum(gd[:,:-1], gd[:,1:])
 
-    a_bottom = dataMgr.shape[0]*dataMgr.shape[1]/144.0
-
-    # np.ones(dataMgr.shape)*
-    th_d = p_gd_thre / (1+p_gw/mg_d)
-    # * (1+p_aw/np.sqrt())
-    th_r = p_gd_thre / (1+p_gw/mg_r)
-
+    # l_a = threshold
     def getFunChara(pos, dire):
         x,y = pos
         if dire == 'd':
             area = min(regMgr.getRegArea((x+1,y)),regMgr.getRegArea((x,y)))
-            return chara_d[pos] / (1+(p_aw-1)*(a_bottom/area)**2)*(1+p_gw/mg_d[pos])
+            pp_a=(area/p_la_bottom)**1.6
+            if pp_a>1:
+                pp_a=1
+            ch = chara_d[x,y]*pp_a#*(1.1-areaChara(area,p_la_bottom, p_la_top))/1.1
+            # print(ch)
+            return ch
         elif dire == 'r':
             area = min(regMgr.getRegArea((x,y+1)),regMgr.getRegArea((x,y)))
-            return chara_r[pos]/ (1+(p_aw-1)*(a_bottom/area)**2)*(1+p_gw/mg_r[pos])
+            pp_a=(area/p_la_bottom)**1.6
+            if pp_a>1:
+                pp_a=1
+            ch = chara_r[x,y]*pp_a#*(1.1-areaChara(area,p_la_bottom, p_la_top))/1.1
+            # print(ch)
+            return ch
         else:
             print("mergeRegion_AG_31: dire wrong!")
             return False
 
-    mergeRegionByFunc(dataMgr, getFunChara, p_gd_thre)
-    # # down
-    # for x in range(size[0]-1):
-    #     for y in range(size[1]):
-    #         if difReg_d[x,y] :
-    #             area = min(regMgr.getRegArea((x+1,y)),regMgr.getRegArea((x,y)))
-    #             if area==0:
-    #                 print("randomSeg.mergeRegion_A_2: area=0")
-    #             if chara_d[x,y]<=th_d[x,y]*(1+(p_aw-1)*(a_bottom/area)**2):
-    #                 regMgr.mergeRegion((x+1,y),(x,y))
-    # # right
-    # for x in range(size[0]):
-    #     for y in range(size[1]-1):
-    #         if difReg_r[x,y]:
-    #             area = min(regMgr.getRegArea((x,y+1)),regMgr.getRegArea((x,y)))
-    #             if area==0:
-    #                 print("randomSeg.mergeRegion_A_2: area=0")
-    #             if chara_r[x,y]<=th_r[x,y]*(1+(p_aw-1)*(a_bottom/area)**2):
-    #                 regMgr.mergeRegion((x,y+1),(x,y))
+    p_gd_thre = dataMgr.para.p_wth_thre
+    # np.ones(dataMgr.shape)*
+    th_d = p_gd_thre / (1+p_gw/mg_d)
+    # * (1+p_aw/np.sqrt())
+    th_r = p_gd_thre / (1+p_gw/mg_r)
+    threshold = (th_d, th_r)
+    if mergeType ==1:
+        mergeRegionByFunc(dataMgr,getFunChara,threshold)
+    elif mergeType==2:
+        mergeRegionByFunc2(dataMgr,getFunChara,threshold)
+    else:
+        print("mergeRegion_AG_31: mergeType wrong!")
 
     regMgr.settleRegion()
 
 
 
 
-def mergeLittleRegion(dataMgr, threhold):
+def mergeLittleRegion(dataMgr, threshold):
     dataMgr.regAdd()
-    threshold = dataMgr.para.p_la_a0
+    # threshold = dataMgr.para.p_la_a0
     regMgr = dataMgr.regMgr
     chara0 = toMean(dataMgr)
     chara = np.sum(abs(chara0[:-1]-chara0[1:]),axis=2),np.sum(abs(chara0[:,:-1]-chara0[:,1:]),axis=2)

@@ -234,6 +234,10 @@ class RegionMgr(object):
             # x2,y2 = pos2
             idx1 = self.space[pos1]
             idx2 = self.space[pos2]
+            if type(idx1) != np.int64:
+                print("mRegion: pos1:", pos1)
+            if type(idx2) != np.int64:
+                print("mRegion: pos2:", pos2)
         if idx1 == idx2:
             return False
         a1 = self.areaList[idx1]
@@ -366,6 +370,10 @@ class RegionMgr(object):
         nlist_i, nlist_o = getEdgeDFS(reg1,regList[0])
         dif_min = 100000
         new_reg_pos = 0
+        if len(nlist_i)==0:
+            print("findNearReg region wrong: ",nlist_i)
+            return None
+
         if not func:
             for i in range(len(nlist_i)):
                 pos_i = nlist_i[i]
@@ -386,7 +394,7 @@ class RegionMgr(object):
             
                 if new_reg_pos == 0:
                     print("findNearReg fail...")
-                    return
+                    return None
         
         else:
             for i in range(len(nlist_i)):
@@ -411,7 +419,7 @@ class RegionMgr(object):
             
                 if new_reg_pos == 0:
                     print("findNearReg fail...")
-                    return
+                    return None
         return new_reg_pos, dif_min
     
     def mergeLabelReg(self, chara, threshold, test=False):
@@ -454,7 +462,19 @@ class RegionMgr(object):
         self.settleRegion()
         return True
 
+    def getAreaMean(self):
+        sumArea = 0
+        numArea = 0
+        for i in range(1,len(self.areaList)):
+            area=self.areaList[i]
+            sumArea += area
+            if area!=0:
+                numArea += 1
+        # sumArea += 1
 
+        if numArea != self.idxNum:
+            print("getAreaMean: ...")
+        return sumArea/numArea
 
 
             

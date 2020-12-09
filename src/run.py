@@ -51,7 +51,7 @@ import time
 inpathHead = "Pic/"
 outpathHead = "output/ranSeg2/1209/"
 runhead = "r1_"
-testhead = "t1_"
+testhead = "t4_"
 # pathnames = [f for f in os.listdir(in_path) if os.path.isfile(os.path.join(in_path, f))]
 pathnames = list1
 # print(onlyfiles)
