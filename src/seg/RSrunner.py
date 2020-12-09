@@ -29,47 +29,65 @@ def setPara(dataMgr, gray, shape):
     pa = dataMgr.para
 
     if DEF_LDATA:
-        pa.p_la_bottom =  int(max(dataMgr.getarea()/1600,100))
-        pa.p_la_top = int(max(400,max(dataMgr.shape[0],dataMgr.shape[1])/10.0*4,dataMgr.getarea()/400))
+        DMarea=dataMgr.getarea()
+        # print("Area: ", DMarea)
+        la_a0 = int(max(dataMgr.getarea()/3200,20))
+        pa.p_la_a0 =  la_a0
+        # la_a1 = (14,14)
+        # la_a2 = (23,23)
+        la_a1 = (la_a0,  int(max(max(dataMgr.shape[0],dataMgr.shape[1])/10.0*3,dataMgr.getarea()/100.0)))
+        # la_a2 = (la_a0,  int(max(max(dataMgr.shape[0],dataMgr.shape[1])/10.0*3,dataMgr.getarea()/900.0)))
+        la_a2 = (la_a0*2, int(dataMgr.getarea()/1600.0))
+        pa.p_la_list.append(la_a1)
+        pa.p_la_list.append(la_a2)
         if not gray:
-            pa.p_seg_color = 4
-            pa.p_seg_dist = 0.5
-            pa.p_cha_wc1 = 1
-            pa.p_cha_wc23 = pa.p_cha_wc1*pa.p_seg_color
-            pa.p_cha_we = 2*6
-            pa.p_cha_wr = 2*12
-            pa.p_cha_thre = 15*5
-            pa.p_gd_m = 10
-            pa.p_gd_pow = 0.4
-            pa.p_gd_we = 9*2*1.5
-            pa.p_gd_wr = 12*2*1.5
-            pa.p_gd_thre = 30*2
-            pa.p_wth_amp = 2
-            pa.p_wth_area  = 2
-            pa.p_wth_grad  = 25
-            pa.p_wth_thre  = 20*0.5
+            pa.p_seg_color  = 4
+            pa.p_seg_dist   = 0.5
+
+            pa.p_cha_wc1    = 1
+            pa.p_cha_wc23   = pa.p_cha_wc1*pa.p_seg_color
+            pa.p_cha_we     = 2*6
+            pa.p_cha_wr     = 2*12
+            pa.p_cha_thre   = 15*20
+
+            # pa.p_gd_m =     40.0
+            pa.p_gd_pow     = 0.5
+            # pa.p_gd_we =    9*3*4
+            # pa.p_gd_wr =    12*3*4
+            pa.p_gd_we      = 1
+            pa.p_gd_wr      = 1
+            pa.p_gd_thre =  pa.p_cha_thre*0.5
+
+            pa.p_wth_amp    = 3
+            pa.p_wth_area   = 3
+            pa.p_wth_grad   = 25
+            pa.p_wth_thre   = 20*0.5
             # dataMgr.para = (p_seg_color,p_seg_dist,p_cha_wc1,p_cha_wc23,p_cha_we,p_cha_wr,p_cha_thre,p_la_bottom,p_la_top)
         else: #if gray
             # print("gray")
-            pa.p_seg_color = 0
-            pa.p_seg_dist = 0.14
-            pa.p_cha_wc1 = 1
-            pa.p_cha_wc23 = pa.p_cha_wc1*pa.p_seg_color
-            pa.p_cha_we = 6*4
-            pa.p_cha_wr = 10*6
-            pa.p_cha_thre = 5*8
+            pa.p_seg_color  = 0
+            pa.p_seg_dist   = 0.14
+
+            pa.p_cha_wc1    = 1
+            pa.p_cha_wc23   = pa.p_cha_wc1*pa.p_seg_color
+            pa.p_cha_we     = 6*4
+            pa.p_cha_wr     = 10*6
+            pa.p_cha_thre   = 5*24
             # pa.p_la_bottom = int(max(16,dataMgr.getarea()/6400))
             # pa.p_la_top = int(max(400,max(dataMgr.shape[0],dataMgr.shape[1])/10.0*4,dataMgr.getarea()/1600))
-            pa.p_gd_pow = 0.5
-            pa.p_gd_m = 10
-            pa.p_gd_we = 8*2*1.5
-            pa.p_gd_wr = 12*2*1.5
-            pa.p_gd_thre = 50*2
-            pa.p_wth_amp = 4
-            pa.p_wth_area  = 5
-            pa.p_wth_grad  = 75
-            pa.p_wth_thre  = 30*0.5
-            # dataMgr.para = (p_seg_color,p_seg_dist,p_cha_wc1,p_cha_wc23,p_cha_we,p_cha_wr,p_cha_thre,p_la_bottom,p_la_top)
+            pa.p_gd_pow     = 0.5
+            # pa.p_gd_m  =    40.0
+            # pa.p_gd_we =    8*4*2.5*2
+            # pa.p_gd_wr =    12*4*2.5*2
+            pa.p_gd_we      = 1
+            pa.p_gd_wr      = 1
+            pa.p_gd_thre    = pa.p_cha_thre*0.5
+
+            pa.p_wth_amp    = 4
+            pa.p_wth_area   = 5
+            pa.p_wth_grad   = 75
+            pa.p_wth_thre   = 30*0.5
+            # dataMgr.para   = (p_seg_color,p_seg_dist,p_cha_wc1,p_cha_wc23,p_cha_we,p_cha_wr,p_cha_thre,p_la_bottom,p_la_top)
 
 def processFile(data, b_test = False,b_simp = False, b_print=True):
     dataMgr = DataMgr(data)
@@ -97,64 +115,7 @@ def processFile(data, b_test = False,b_simp = False, b_print=True):
         oc.append(dataMgr.data)
         oce.append(dataMgr.Cdata)
     if not b_test:
-        
-        
-        
-        start_time = time.time()
-        getLargeSegment(dataMgr, 2000,killTinyReg=False) ## TODO
-        output0 = dataMgr.region_copy()
-        # if np.mean(output0)!=np.mean(dataMgr.regMgr.space):
-        #     print("Wrong!")
-        
-        myprint("RandomSeg edge time:\t\t--- %8.4f seconds ---" % (time.time() - start_time))
-        # oc.append(toMean(dataMgr,False))
-        # oce.append(toMean(dataMgr,True,b_gray))    
-
-        # ---- little region delete         --- #
-        # p_cha_thre = 16
-        start_time = time.time()
-        mergeLittleRegion(dataMgr)
-        # out2 = dataMgr.region_copy()
-        myprint("Little region merge time:\t--- %8.4f seconds ---" % (time.time() - start_time))
-        oc.append(toMean(dataMgr,False))
-        oce.append(toMean(dataMgr,True,b_gray))
-        # ------------------------------------- #
-
-        # # ------------------------------------- #
-        # # ---- print chara 2                --- #
-        # reg1,reg2 = getChara2(dataMgr.Cdata, dataMgr.para.get_cha())
-        # reg_f = imglib.addArrayCol(reg1,0)+imglib.addArrayCol(reg2,1)
-        # oc.append(imglib.charaToImg(reg_f,inv=True))
-        # # oce.append(np.zeros(dataMgr.data.shape))
-        # # ------------------------------------- #
-
-        # ---- merge Chara2                 --- #
-        start_time = time.time()
-        mergeRegion_A_2(dataMgr)
-        myprint("Merge2 time:\t\t\t--- %8.4f seconds ---" % (time.time() - start_time))
-        oc.append(toMean(dataMgr,False))
-        oce.append(toMean(dataMgr,True,b_gray))        
-        # ------------------------------------- #
-
-        # ---- merge Chara2                 --- #
-        # dataMgr.para.p_la_bottom = 
-        dataMgr.para.p_la_top *= 8
-        start_time = time.time()
-        mergeRegion_A_2(dataMgr)
-        myprint("Merge2-2 time:\t\t\t--- %8.4f seconds ---" % (time.time() - start_time))
-        oc.append(toMean(dataMgr,False))
-        oce.append(toMean(dataMgr,True,b_gray))        
-        # ------------------------------------- #
-
-        # # ---- merge Chara31                --- #
-        # start_time = time.time()
-        # mergeRegion_AG_31(dataMgr)
-        # print("Merge31 time:\t\t\t--- %8.4f seconds ---" % (time.time() - start_time))
-        # oc.append(toMean(dataMgr,False))
-        # oce.append(toMean(dataMgr,True,b_gray))
-        # # ------------------------------------- #
-
-        
+        pass               
     else:
         start_time = time.time()
         getLargeSegment(dataMgr, 2000,killTinyReg=False) ## TODO
@@ -168,7 +129,7 @@ def processFile(data, b_test = False,b_simp = False, b_print=True):
         # ---- little region delete         --- #
         # p_cha_thre = 16
         start_time = time.time()
-        mergeLittleRegion(dataMgr,dataMgr.para.p_la_bottom/32.0)
+        mergeLittleRegion(dataMgr,dataMgr.para.p_la_a0)
         # out2 = dataMgr.region_copy()
         myprint("Little region merge time:\t--- %8.4f seconds ---" % (time.time() - start_time))
         oc.append(toMean(dataMgr,False))
@@ -176,12 +137,24 @@ def processFile(data, b_test = False,b_simp = False, b_print=True):
         # ------------------------------------- #
 
 
-        # # ---- merge Chara2                 --- #
+        # ---- merge Chara2                 --- #
+        start_time = time.time()
+        mergeRegion_A_2(dataMgr,1)
+        myprint("Merge2 time:\t\t\t--- %8.4f seconds ---" % (time.time() - start_time))
+        oc.append(toMean(dataMgr,False))
+        oce.append(toMean(dataMgr,True,b_gray))        
+        # ------------------------------------- #
+        
+        # # ---- merge Chara3                 --- #
         # start_time = time.time()
-        # mergeRegion_A_2(dataMgr)
-        # myprint("Merge2 time:\t\t\t--- %8.4f seconds ---" % (time.time() - start_time))
-        # # oc.append(toMean(dataMgr,False))
-        # # oce.append(toMean(dataMgr,True,b_gray))        
+        # # param.p_gd_we *=2
+        # # param.p_gd_we *=2
+        # # param.p_gd_thre *=0.2
+        # mergeRegion_AG_3(dataMgr,2)
+        # myprint("Merge3 time:\t\t\t--- %8.4f seconds ---" % (time.time() - start_time))
+
+        # oc.append(toMean(dataMgr,False))
+        # oce.append(toMean(dataMgr,True,b_gray))        
         # # ------------------------------------- #
 
         # # ---- merge Chara2                 --- #
@@ -202,6 +175,7 @@ def processFile(data, b_test = False,b_simp = False, b_print=True):
         oc.append(toMean(dataMgr,False))
         oce.append(toMean(dataMgr,True,b_gray))
         # ------------------------------------- #
+
 
         # ===================================== #
     # ===================================== #

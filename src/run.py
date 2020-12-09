@@ -49,9 +49,9 @@ else:
 import time
 
 inpathHead = "Pic/"
-outpathHead = "output/ranSeg2/1205/"
+outpathHead = "output/ranSeg2/1209/"
 runhead = "r1_"
-testhead = "t2_"
+testhead = "t1_"
 # pathnames = [f for f in os.listdir(in_path) if os.path.isfile(os.path.join(in_path, f))]
 pathnames = list1
 # print(onlyfiles)
@@ -80,7 +80,7 @@ def testFile(path_name):
     print("Image "+in_path+" ...")
     outs = []
     start_time = time.time()
-    for i in range(3):
+    for i in range(2):
         outs.append(RSrunner.processFile(data, b_test=True,b_simp=True, b_print=False))
     out = imglib.mergeArray(tuple(outs), 0, 5)
     print("Merge all region time:\t\t--- %8.4f seconds ---" % (time.time() - start_time))

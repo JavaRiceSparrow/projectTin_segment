@@ -102,18 +102,21 @@ class dataParam(object):
         
         self.p_seg_color    = 4
         self.p_seg_dist     = 0.5
+
         self.p_cha_wc1      = 1
         self.p_cha_wc23     = self.p_cha_wc1*self.p_seg_color 
         self.p_cha_we       = 0.8
         self.p_cha_wr       = 1
         self.p_cha_thre     = 15
-        self.p_la_bottom    = 0
-        self.p_la_top       = 0
-        self.p_gd_m         = 0
+
+        self.p_la_a0        = 0
+        self.p_la_list = []
+        # self.p_gd_m         = 0
         self.p_gd_we        = 0
         self.p_gd_wr        = 0
         self.p_gd_pow       = 0
         self.p_gd_thre      = 0
+
         self.p_wth_thre     = 0
         self.p_wth_area     = 0
         self.p_wth_grad     = 0
@@ -127,16 +130,20 @@ class dataParam(object):
         return (self.p_cha_wc1, self.p_cha_wc23, self.p_cha_we, self.p_cha_wr)
         '''
         return (self.p_cha_wc1, self.p_cha_wc23, self.p_cha_we, self.p_cha_wr)
-    def get_la(self):
+    def get_la(self, phase=1):
         '''
         return (self.p_la_bottom, self.p_la_top)
         '''
-        return (self.p_la_bottom, self.p_la_top)
+        if phase-1<len(self.p_la_list):
+            return self.p_la_list[phase-1]
+        return None
+        # elif phase==2:
+            # return (self.p_la_a2, self.p_la_a3)
     def get_gd(self):
         '''
-        return (self.p_gd_m, self.p_gd_we, self.p_gd_wr, self.p_gd_pow, self.p_gd_thre)
+        return (self.p_gd_we, self.p_gd_wr, self.p_gd_pow, self.p_gd_thre)
         '''
-        return (self.p_gd_m, self.p_gd_we, self.p_gd_wr, self.p_gd_pow, self.p_gd_thre)
+        return (self.p_gd_we, self.p_gd_wr, self.p_gd_pow, self.p_gd_thre)
     def get_wth(self):
         '''
         return (self.p_wth_area, self.p_wth_grad, self.p_wth_thre)
@@ -315,8 +322,6 @@ class RegionMgr(object):
                     idx = self.space[i,j]
                     if area!=self.areaList[idx]:
                         print("Area not Vertified ... ")
-                        # print(self.space)
-                        # print(area, ", ",self.areaList[idx])
                         return False
                     for pos in rlist:
                         visited[pos] = True
@@ -415,7 +420,6 @@ class RegionMgr(object):
         if np.sum(reg) !=0:
             print("region.mergeLabelReg: fatal err...")
             return False
-        # print("Start")
         
         reg = (self.space==-2)
         # regsum = np.sum(reg)
@@ -536,7 +540,7 @@ class DataMgr(object):
         # grad_func = cy_arr + np.sqrt(p_seg_color)*(cb_arr+cr_arr)
         # nodelib.getGradient(cy_arr)
         self.grad = np.abs(cy_arr) + np.sqrt(p_seg_color)*(np.abs(cb_arr)+np.abs(cr_arr))
-    def getMeanGrad(self, regList = None):
+    def getMeanGrad(self, regList = None, b_min=True):
         """
         If regList is None, return matrix meanGrad(array);
         If regList is passed, return mean gradient value(float).
@@ -552,6 +556,8 @@ class DataMgr(object):
         if not self.regMgr.vertifyFull():
             print('Region is not full!!!')
             return 0
+
+        gMean = np.mean(self.grad)
         
 
 
@@ -561,12 +567,15 @@ class DataMgr(object):
                 if self.meanGrad[i,j]==-1:
                     
                     reg = self.regMgr.getRegion((i,j),True)
-                    grad_sum = 0
+                    grad_sum = 0.0
                     for pos in reg:
                         grad_sum += self.grad[pos]
                     grad_mean = grad_sum/len(reg)
                     for pos in reg:
                         self.meanGrad[pos] = grad_mean
+        self.meanGrad = self.meanGrad/gMean
+        if b_min:
+            self.meanGrad[self.meanGrad==0]=1E-6
         if np.min(self.meanGrad)<0:
             print('Region is not full!!!')
             return 0

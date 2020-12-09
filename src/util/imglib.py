@@ -40,7 +40,7 @@ def charaToImg(data, pow = 0.5, inv = False):
         print("Data type wrong!")
         return None
     if len(data.shape) == 3:
-        print("???")
+        print("Data shape wrong!")
     if data.dtype == bool:
         ndata = 255*(data.astype('uint8'))
 
@@ -78,7 +78,6 @@ def mergeArray(datas, axis=1, interval = 0):
     '''
     # if datas 
     data1 = datas[0]
-    # print(data1.shape)
     # if len(data1.shape) !=3:
     #     return 0
     b_dim2 = False
@@ -114,7 +113,6 @@ def addArrayCol(data, axis=1, interval = 1):
         return data
     # if datas 
     data1 = data
-    # print(data1.shape)
     # if len(data1.shape) !=3:
     #     return 0
     b_dim2 = False
@@ -143,7 +141,6 @@ def addArrayCol(data, axis=1, interval = 1):
 def addWordDown(data, words):
     # , size=20, reign = 30
     x,y,c_axis = data.shape
-    # print(data.)
     # if size==0:
     #     size = int(x/12)
     # if reign==0:
@@ -161,8 +158,6 @@ def addWordDown(data, words):
     data1 = mergeArray((data, space), axis=0, interval=10)
 
     img = Image.fromarray(data1.astype('uint8'))
-    # print(type(img))
-
 
     from PIL import ImageDraw, ImageFont
     draw = ImageDraw.Draw(img)
@@ -207,7 +202,6 @@ def getImg(path, Blight = False, Black = False, to_3d = False):
             return rawData
     if not Blight:
         return rawData
-    # print(rawData[10:30,40:60])
     if len(rawData.shape) == 3:
         brightData = rawData[:,:,0]*0.299+ \
             rawData[:,:,1]*0.587+rawData[:,:,0]*0.114
@@ -239,7 +233,6 @@ def saveImg(data, path):
     else:
         bmpImg = data.astype('uint8')
 
-    # print(bmpImg.shape)
     # mp.image.imsave('result.bmp', bmpImg)
     im = Image.fromarray(bmpImg)
     im.save(path)
@@ -452,13 +445,10 @@ def RGBtoXYZ(rgbArray):
         out[df] = ((data[df]+0.055)/1.055)**2.4
         out[dfv] = data[dfv]/12.92
         return out
-    # print(r  )
-    # print(r/255.0)
 
     R = gamma(r/255.0)
     G = gamma(g/255.0)
     B = gamma(b/255.0)
-    # print(R)
     Xn = 95.047
     Yn = 100.0
     Zn = 108.883
@@ -559,4 +549,3 @@ def RGBtoLAB(rgbArray):
     return lab
 
 # x = np.array([[1,0,1], [0,1,1],[0,1,0],[1,0,0]])
-# print(moment(x,1,2))

@@ -23,6 +23,7 @@
 116: fruits1.bmp
 
 120 lena_128.bmp 
+121 lena_25.bmp 
 132 planets.bmp
 
 64 FreshFruitVegetablegray.jpg
@@ -57,7 +58,7 @@ python src/run.py 114 116 103 101 68 133 63
 
 python src/run.py -test 63 68 101 103 114 116 120 126 133 151
 
-python src/run.py -test 68 
+python src/run.py -test 63 68 120 126 
 
 python src/run.py  63 68 101 103 114 116 120 126 133 151 127 90
 

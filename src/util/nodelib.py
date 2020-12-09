@@ -19,10 +19,8 @@ def toColor(data, drawEdge = True):
     #     print("?????")
     #     return None
     out = np.zeros((size_x, size_y, 3))
-    # print(segment.shape)
     for x in range(size_x):
         for y in range(size_y):
-            # print(seg_array)
             if data[x,y] !=0:
                 out[x,y] = np.array(color.getHue(data[x,y]*10))
     if drawEdge:
@@ -39,10 +37,8 @@ def toEdge(data, drawEdge = True):
     #     print("?????")
     #     return None
     out = np.ones((size_x, size_y, 3))*255
-    # print(segment.shape)
     # for x in range(size_x):
     #     for y in range(size_y):
-    #         # print(seg_array)
     #         if data[x,y] !=0:
     #             out[x,y] = np.array(color.getHue(data[x,y]*10))
     if drawEdge:
@@ -55,7 +51,6 @@ def toEdge(data, drawEdge = True):
 
 def combineEdge(datas, gray = True, toImg = True):
 
-    # print(datas[0].shape)
     size_total = datas[0].shape
     # if len(size_total) == 3:
     #     size_x, size_y, _ = size_total
@@ -206,7 +201,6 @@ def getGradient(data, unit_len = 1, b_return_vector_form = False):
     grad = np.sqrt(np.square(gx) + np.square(gy))
     grad[-1] = grad[-2]
     grad[:,-1] = grad[:,-2]
-    # print(grad.shape)
     return grad
 
 def getReduceSize(data):
